@@ -28,3 +28,33 @@ firstvalue=testdict[firstkey]
 print(firstkey)
 print(firstvalue)
 print(testdict.keys())
+
+# get upper divison status
+archlist=['ARC 318L','ARC 334K','ARC 308','PHY 105M',"Upper-division BAX courses (Major)"]
+
+resultdict={}
+lowerdivstatus="Lower Division"
+upperdivstatus="Upper Division"
+for i in archlist:
+    
+    if any(char.isdigit() for char in i):
+        coursenum=i.split(' ')[-1][1:3]
+        print(coursenum)
+        if int(coursenum)>=20:
+             
+            resultdict[i]=upperdivstatus
+        else:
+            resultdict[i]=lowerdivstatus
+
+
+    else:
+        if "upper" in i.lower():
+            resultdict[i]=upperdivstatus
+        else:
+            resultdict[i]=lowerdivstatus
+print(resultdict)
+
+
+
+# i gotta append carefully to make sure everything lines up
+

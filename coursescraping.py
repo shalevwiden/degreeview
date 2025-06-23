@@ -57,9 +57,11 @@ def find_major_coursedata(course_soup):
     # get only the even and odd trs for sure
     trs=course_soup.find_all('tr',attrs={"class":["even","odd"]})
     
+    # for every grouping of names, code, hours, status
     for row in trs:
         tds=row.find_all('td')
         if len(tds)==3:
+
             coursename=tds[1]
             minorcertstatus = True
             # make sure it doesnt say minor or certificate
@@ -80,8 +82,33 @@ def find_major_coursedata(course_soup):
                 coursecodes=firsttd.find_all('a',attrs={"class": ["bubblelink", "code"]})
                 # print(f'len of coursecodes is {len(coursecodes)}\n')
                 for coursecode in coursecodes:
+                    # defines coursecode here although tricky. Remove Unicode space.
                     coursecode=coursecode.text.replace('\xa0',' ')
 
+                
+
+                # turns out coursecode is a string
+
+                # get the status from the number stuff
+
+                lowerdivstatus="Lower Division"
+                upperdivstatus="Upper Division"
+                status=''
+                # check if theres a number in it
+                if any(char.isdigit() for char in coursecode):
+                    coursenum=coursecode.split(' ')[-1][1:3]
+                    print(coursenum)
+                    if int(coursenum)>=20:
+                        status=upperdivstatus
+                    else:
+                        status=lowerdivstatus
+                else:
+                    if "upper" in coursecode.lower():
+                        status=upperdivstatus
+                    else:
+                        status=lowerdivstatus
+
+                
 
                 thirdtd=tds[2]
                 coursehours='na'
@@ -89,12 +116,19 @@ def find_major_coursedata(course_soup):
                 # .get returns many diferent attributes
                 if "hourscol" in thirdtd.get("class",[]):
                     coursehours=thirdtd.get_text()
-                coursecode_nameandhours_dict[coursename]=[coursecode, coursehours]
+                coursecode_nameandhours_dict[coursename]=[coursecode, coursehours, status]
+
+                # get and add the upper and lower division stuff
+                
 
                 # the length of the td is 2 when theres no course code
                 # this happens when its an unspecified course like upper division course
+
+
         elif len(tds)==2:
+
             coursename=tds[0]
+
             minorcertstatus = True
             # make sure it doesnt say minor or certificate - only really have to worry about it here with the non specific courses
             avoidlist=["minor","certificate"]
@@ -110,26 +144,44 @@ def find_major_coursedata(course_soup):
                 coursename=coursename[0].strip()
 
                 secondtd=tds[1]
+
+
+                # getting and assigning the status variable
+                lowerdivstatus="Lower Division"
+                upperdivstatus="Upper Division"
+                status=''
+                if "upper" in coursename.lower():
+                    status=upperdivstatus
+                else:
+                    status=lowerdivstatus
+
+
+
                 # extra assurance to check the class
                 if "hourscol" in secondtd.get("class",[]):
                     coursehours=secondtd.get_text()
                 
                 # now adding to the dictionary logic
                 if coursename not in coursecode_nameandhours_dict:
-                    coursecode_nameandhours_dict[coursename]=[['no course code', coursehours]]
+                    coursecode_nameandhours_dict[coursename]=[['no course code', coursehours,status]]
                 else:
-                    coursecode_nameandhours_dict[coursename].append(['no course code',coursehours])
+                    coursecode_nameandhours_dict[coursename].append(['no course code',coursehours,status])
 
+                # get upper div by textin coursename for this one since no coursecode
+
+                
     '''
     In this dictionary I have all the course codes that is in the major. This will be useful for later when
     I need to get the prerequisites as I will only visit the links for the coursecodes.  
-    Current problem: not allowing duplicates - Solved by checking if "minor" is in the coursename.
+    Current problem: not allowing duplicates - Solved by checking if it does and if it does appending not creating.
     '''
     return coursecode_nameandhours_dict
-# I continue this in the make_majorcourses_csvs.py
+# I continue this (above) in the make_majorcourses_csvs.py
 
 def findalldegree_courses(course_soup):
     pass
+
+
 if __name__=="__main__":
     def getcoursedatabysemester(course_soup):
         # define this one later, just make small tweaks to 
@@ -139,17 +191,19 @@ if __name__=="__main__":
     def testcases():
         print(f'CS Testing\n')
         csdict=find_major_coursedata(cssoup)
+        print('\nCS dict:\n')
+        print(csdict)
 
         # turns out theres 8 upper division cs courses
-        print(f'Econ Testing\n')
+        # print(f'Econ Testing\n')
 
-        econdict=find_major_coursedata(econsoup)
+        # econdict=find_major_coursedata(econsoup)
 
-        print(f'Finance testing\n')
-        financedict=find_major_coursedata(course_soup=financesoup)
+        # print(f'Finance testing\n')
+        # financedict=find_major_coursedata(course_soup=financesoup)
+        return "return this so I dont get errors"
 
-    def testcasescall():
-        print(testcases())
+    call=testcases()
 
     print('OLD STUFF NOW\n')
 
@@ -187,7 +241,7 @@ if __name__=="__main__":
         # returns only the tds with "major" in their text
         # this should work to loop over to check class attributes in the matchcode_and_name function
         return major_course_names
-    print('return_raw_major_course_names:')
+    print('\n\n\nreturn_raw_major_course_names:\n')
     print(return_raw_major_course_names(course_soup=cssoup))
 
 

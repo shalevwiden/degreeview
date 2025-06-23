@@ -9,9 +9,10 @@ import csv
 
 import requests
 # good to check everythings working with the venv:
-print(f'the version of beautiful soup is\n {(bs4.__version__)}')
-print(f'the version of requests is\n {(requests.__version__)}')
-print(f'\nthe python version being used is:{sys.executable}\n')
+if __name__=='__main__':
+    print(f'the version of beautiful soup is\n {(bs4.__version__)}')
+    print(f'the version of requests is\n {(requests.__version__)}')
+    print(f'\nthe python version being used is:{sys.executable}\n')
 
 from coursescraping import find_major_coursedata
 from theassetcontainment import theasset
@@ -51,18 +52,7 @@ def makelistof_majordata_dicts(schooldata):
             list_ofmajordata_dicts.append(degreename_major_coursedatadict)
 
     return list_ofmajordata_dicts
-print('testing:\n')
-print('test the find_major_coursedata function again')
 
-
-cssuggestedarrangement=requests.get('https://catalog.utexas.edu/undergraduate/natural-sciences/degrees-and-programs/bs-computer-science/sugg-comp-sci-bscompsci/')
-cssoup=BeautifulSoup(cssuggestedarrangement.text,'html.parser')
-print(find_major_coursedata(course_soup=cssoup))
-print('\nmakelistof_majordata_dicts\n')
-
-biglist=makelistof_majordata_dicts(archdata)
-for i in biglist:
-    print(f'\n{i}\n')
 
 
 
@@ -82,6 +72,10 @@ def make_majorcoursesonly_csvs(schooldata):
     print(schoolname)
 
     degreedata=makelistof_majordata_dicts(schooldata)
+    coursecode=1 #fillut
+    coursename=2#fill out too
+    coursehours=3
+    upperdivstatus=4#gotta do this one somewhere as well...
 
 
 
@@ -90,7 +84,31 @@ def make_majorcoursesonly_csvs(schooldata):
 
     # with this one, do something similar to the one above
 
-print('make_majorcoursesonly_csvs:\n')    
-make_majorcoursesonly_csvs(schooldata=archdata)
+if __name__=='__main__':
+
+    print('testing:\n')
+    print('test the find_major_coursedata function again')
+
+
+    cssuggestedarrangement=requests.get('https://catalog.utexas.edu/undergraduate/natural-sciences/degrees-and-programs/bs-computer-science/sugg-comp-sci-bscompsci/')
+    cssoup=BeautifulSoup(cssuggestedarrangement.text,'html.parser')
+    print(find_major_coursedata(course_soup=cssoup))
+    print('\nmakelistof_majordata_dicts\n')
+    print('Big list testing:')
+
+    biglist=makelistof_majordata_dicts(archdata)
+    for i in biglist:
+        print(f'\n{i}\n')
+    print('make_majorcoursesonly_csvs:\nThis should print the schoolname\n')    
+    make_majorcoursesonly_csvs(schooldata=archdata)
+
+
 def makemajorcoursesexcelfiles(schooldata):
       pass
+
+
+# probably do this in another file and just import
+def makemajoronly_mmdfiles(schooldata):
+    ''' use a similar approach to makemajoronly csvs
+    in that I can use that biglist'''
+    pass
