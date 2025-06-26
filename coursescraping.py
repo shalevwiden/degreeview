@@ -97,7 +97,6 @@ def find_major_coursedata(course_soup):
                 # check if theres a number in it
                 if any(char.isdigit() for char in coursecode):
                     coursenum=coursecode.split(' ')[-1][1:3]
-                    print(coursenum)
                     if int(coursenum)>=20:
                         status=upperdivstatus
                     else:
@@ -163,9 +162,10 @@ def find_major_coursedata(course_soup):
                 
                 # now adding to the dictionary logic
                 if coursename not in coursecode_nameandhours_dict:
-                    coursecode_nameandhours_dict[coursename]=[['no course code', coursehours,status]]
+                    # removed it from "no course code" to just an empty string
+                    coursecode_nameandhours_dict[coursename]=[['', coursehours, status]]
                 else:
-                    coursecode_nameandhours_dict[coursename].append(['no course code',coursehours,status])
+                    coursecode_nameandhours_dict[coursename].append(['',coursehours, status])
 
                 # get upper div by textin coursename for this one since no coursecode
 

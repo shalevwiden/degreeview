@@ -21,11 +21,9 @@ def getstats():
     print(f'\nThere are {totalmajors} majors')
 
     print('\n')
-    print('The first dict, architecture.')
-    print(theasset[0])
 
 print(getstats())
-print('Architecture:\n')
+print('Architecture Major Names from theasset:\n')
 for i in theasset[0]:
     print(i)
 
@@ -45,14 +43,13 @@ def makecsv(schooldata):
         writer.writerow(['',''])
 
         writer.writerow(["Degree","URL to Suggested Arrangement of Courses Page"])
-        writer.writerow(['',''])
+        # removed extra space
         for i in range(1,len(schooldata)):
             key=list(schooldata)[i]
             value=schooldata[key]
             writer.writerow([key,value])
         writer.writerow(['',''])
-        writer.writerow(['',''])
-        writer.writerow(['DegreeViz'])
+        writer.writerow(['degreeview'])
 
 
 
@@ -77,43 +74,48 @@ def automate_csvs(schooldata,directorypath):
         writer.writerow(['',''])
 
         writer.writerow(["Degree","URL to Suggested Arrangement of Courses Page"])
-        writer.writerow(['',''])
         for i in range(1,len(schooldata)):
             key=list(schooldata)[i]
             value=schooldata[key]
             writer.writerow([key,value])
         writer.writerow(['',''])
         writer.writerow(['',''])
-        writer.writerow(['DegreeViz'])
+        writer.writerow(['DegreeView'])
 
 def unpack_the_asset_into_csvs(the_asset):
     # enter this as an argument to automate csvs
-    course_csv_folder='/Users/shalevwiden/Downloads/Projects/degreeviz'
+    course_csv_folder='/Users/shalevwiden/Downloads/Projects/degreeview'
     for schooldict in the_asset:
         try:
         # first make a folder for every school
             schoolname=schooldict[list(schooldict)[0]]
             schooldirpath=os.path.join(course_csv_folder, f'{schoolname}')
             # cant assign schooldirpath to mkdir
-            os.mkdir(schooldirpath)
-            
+
+            # IMPORTANT: this can recreate the school folders if they are deleted 
+            if not os.path.exists(schooldirpath):
+                os.mkdir(schooldirpath)
+                print(f'Made a new school dir at {schooldirpath}')
+
             print(schooldirpath)
-            print(f'Made school dir at {schooldirpath}')
 
 
             # then make the csvs per major for that school
             automate_csvs(schooldata=schooldict,directorypath=schooldirpath)
-            print(f'Made a csv for {schoolname} majors at:\n {schooldirpath} ')
+            print(f'\nMade a csv for {schoolname} majors at:\n {schooldirpath}\n ')
         except FileExistsError:
             print('File exists')
 
 # gotta bust out the delete files script. 
 
+# every time I run this file(makecsvs.py) it makes new csvs because of this line. 
 unpack_the_asset_into_csvs(the_asset=theasset)
+print('Unpacked')
 
 # import the function I made in the adjacent file
 from getall_suggestedcoursespages import getcollegenames
 # have to do this printing stuff - add if name ==main to both files
 if __name__=="__main__":
+    print('imported "getcollegenames" function \n')
     print('\ndamn this works',"the colleges following are in UT:\n")
     print(getcollegenames())

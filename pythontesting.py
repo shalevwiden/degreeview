@@ -1,3 +1,14 @@
+import requests
+import bs4
+from bs4 import BeautifulSoup
+
+import sys
+import os
+
+print(f'the version of beautiful soup is\n {(bs4.__version__)}')
+print(f'the version of requests is\n {(requests.__version__)}')
+print(f'\nthe python version being used is:{sys.executable}\n')
+
 print('\xa0')
 
 # practice list comprehensions
@@ -21,6 +32,10 @@ print()
 
 # get a certain element in a dict without knowing the key
 testdict={'a':1,'b':2,'c':3}
+
+for i in testdict:
+    print(i)
+    print('Should print the keys')
 firstkey=list(testdict)[0]
 firstvalue=testdict[firstkey]
 
@@ -58,3 +73,14 @@ print(resultdict)
 
 # i gotta append carefully to make sure everything lines up
 
+# listofliststesting
+listoflists=[]
+for i in range(5):
+    innerlist=[]
+    for i in range(3):
+        innerlist.append(i+1)
+    listoflists.append(innerlist)
+print(f'listoflists{listoflists}')
+print(len(listoflists))
+
+# %%
