@@ -102,10 +102,10 @@ def find_major_coursedata(course_soup):
                     else:
                         status=lowerdivstatus
                 else:
-                    if "upper" in coursecode.lower():
-                        status=upperdivstatus
-                    else:
+                    if "lower" in coursecode.lower():
                         status=lowerdivstatus
+                    else:
+                        status=upperdivstatus
 
                 
 
@@ -149,10 +149,10 @@ def find_major_coursedata(course_soup):
                 lowerdivstatus="Lower Division"
                 upperdivstatus="Upper Division"
                 status=''
-                if "upper" in coursename.lower():
-                    status=upperdivstatus
-                else:
+                if "lower" in coursename.lower():
                     status=lowerdivstatus
+                else:
+                    status=upperdivstatus
 
 
 

@@ -7,7 +7,6 @@ import os
 
 import csv
 
-import requests
 # good to check everythings working with the venv:
 if __name__=='__main__':
     print(f'the version of beautiful soup is\n {(bs4.__version__)}')
