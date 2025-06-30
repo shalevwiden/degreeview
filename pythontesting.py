@@ -83,4 +83,48 @@ for i in range(5):
 print(f'listoflists{listoflists}')
 print(len(listoflists))
 
+# removelist=[]
+# for i in range(20):
+#     removelist.append(i)    
+# for i in range(len(removelist)):
+#     if (i+1)%4==0:
+#         del removelist[i]
+# print(f'Remove list{removelist}')
+
+print('tr trickiness\n')
+unfilteredtrs=[[1,2,3],[1,2,3],[1,2,4]]
+trs=[]
+for tr in unfilteredtrs:
+    if 4 not in tr:
+        trs.append(tr)
+
+# use all keyword
+print(f'trs:{trs}')
+
+testall3=['yo','mama','has','letters','in','her','name','longword']
+print('\nList comprehensions mf\n')
+
+testall3list=[word for word in testall3 if len(word)>4]
+print(testall3list)
+
+# how to make a jupyter cell - type # %%
+
+# study up on that later
+
+
+# all learning
+# %%
+testall2=[5,10,15,20]
+
+print('Are all nums above 10?:')
+print(all(n>10 for n in testall2))
+print('\n')
+print('All nums above 3' if all(n>3 for n in testall2) else 'They are below')
+
+
+# any learning
+# %%
+testlist1=[1,2,3,4,5,4,3,2,1]
+numvar=6
+print('yes' if any(num==numvar for num in testlist1) else f'{numvar} not in testlist1')
 # %%

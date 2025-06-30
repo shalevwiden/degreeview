@@ -49,6 +49,8 @@ def find_major_coursedata(course_soup):
     """
     this function returns a dictionary with the key coursename and the values as a list of coursecode and coursehours 
     if there are multiple names of the course it turn into a list of lists for the value. 
+
+    Gets ONLY major courses
     """
     coursecode_nameandhours_dict={}
     # can do multiple find alls hmmm
