@@ -14,3 +14,13 @@ first commit:
 ```bash
 git commit -m"initialized repo for college_course_scraping, added README, .gitignore, and all python files"
 ```
+
+scrapesemesterdata.py includes coursetype:
+
+- Core,
+- General Education
+- Major
+- Elective
+- Opportunity
+
+It scrapes all courses and seperates them by semester, primed for visualization with Excel, Matplotlib, or Mermaid.
