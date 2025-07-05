@@ -17,13 +17,12 @@ if __name__=='__main__':
 from theassetcontainment import theasset
 
 
-print(len(theasset))
+# print(len(theasset))
 
 # getting a testlink from the asset
 archdata=theasset[0]
 schoolname=archdata[list(archdata)[0]]
 interiordesignlink=archdata[list(archdata)[1]]
-print(interiordesignlink)
 
 # getting the page
 interior_suggested_arrangement=requests.get(interiordesignlink)
@@ -42,7 +41,8 @@ def getallcourses_splitbysemester(suggcourse_link):
     course_soup=BeautifulSoup(course_suggested_arrangement.text,'html.parser')
     semesterdictionary={}
     # can do multiple find alls hmmm
-
+    degreename=course_soup.find('h1',attrs={"id":"page-title"}).get_text().strip()
+    degreename=degreename.split(',')[-1].replace('\\','-')
     # I think I can do all the logic in this function turns out.
     # get only the even and odd trs for sure - this gets the semester headings too
     unfiltered_trs=course_soup.find_all('tr',attrs={"class":["even","odd"]})
@@ -165,7 +165,7 @@ def getallcourses_splitbysemester(suggcourse_link):
             semesternum=row.find('span',{"class":["courselistcomment","areaheader"]}).get_text()
             semesterdictionary[f'Semester {semestercount}']=semesternum
             
-
+    print(f'Created semesterdictionary for{degreename}\n')
     return semesterdictionary
 
 def splitupsemesters(course_soup):
