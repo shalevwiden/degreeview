@@ -164,3 +164,10 @@ print(degreename)
 
 # %%
 print('\nBack to normal python')
+
+# %%
+keysdict={'firstkey': 25,'secondkey':30}
+print(keysdict.keys())
+print(len(keysdict.keys()))
+print(len(keysdict))
+# %%

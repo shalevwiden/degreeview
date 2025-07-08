@@ -26,6 +26,9 @@ interiordesignlink=archdata[list(archdata)[1]]
 
 # getting the page
 interior_suggested_arrangement=requests.get(interiordesignlink)
+
+# print(f'Interior design link:{interiordesignlink}')
+
 interiorsoup=BeautifulSoup(interior_suggested_arrangement.text,'html.parser')
 
 def getallcourses_splitbysemester(suggcourse_link): 
@@ -191,4 +194,4 @@ if __name__=="__main__":
     print(f'\nNow calling splitupsemesters function:\n')
     splitupsemesterdict=splitupsemesters(createdsemesterdictionary=interiordesignsemesterdict)
     for i in splitupsemesterdict:
-        print(f'\n{splitupsemesterdict[i]}\n')
+        print(f'Semester - {i}:\n{splitupsemesterdict[i]}\n')
