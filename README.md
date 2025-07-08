@@ -1,6 +1,6 @@
 # Course Scraping
 
-## For the creation of DegreeViz
+## For the creation of DegreeView
 
 ---
 

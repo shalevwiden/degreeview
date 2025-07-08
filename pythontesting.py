@@ -171,3 +171,5 @@ print(keysdict.keys())
 print(len(keysdict.keys()))
 print(len(keysdict))
 # %%
+a,b,c=[5,6,7]
+print(a,b,c)

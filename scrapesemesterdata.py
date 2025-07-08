@@ -45,7 +45,7 @@ def getallcourses_splitbysemester(suggcourse_link):
     semesterdictionary={}
     # can do multiple find alls hmmm
     degreename=course_soup.find('h1',attrs={"id":"page-title"}).get_text().strip()
-    degreename=degreename.split(',')[-1].replace('\\','-')
+    degreename=degreename.split(',')[-1].replace('\\','-').strip()
     # I think I can do all the logic in this function turns out.
     # get only the even and odd trs for sure - this gets the semester headings too
     unfiltered_trs=course_soup.find_all('tr',attrs={"class":["even","odd"]})
@@ -160,15 +160,14 @@ def getallcourses_splitbysemester(suggcourse_link):
 
                     # get upper div by textin coursename for this one since no coursecode
                 
-
+        # areaheader is the semester classes
         elif  "areaheader" in row.get("class",[]):
             semestercount+=1
-            print('\n there was an areaheader\n')
 
             semesternum=row.find('span',{"class":["courselistcomment","areaheader"]}).get_text()
             semesterdictionary[f'Semester {semestercount}']=semesternum
             
-    print(f'Created semesterdictionary for{degreename}\n')
+    print(f'Created semesterdictionary for {degreename}\n')
     return semesterdictionary
 
 def splitupsemesters(createdsemesterdictionary):
@@ -193,5 +192,7 @@ if __name__=="__main__":
 
     print(f'\nNow calling splitupsemesters function:\n')
     splitupsemesterdict=splitupsemesters(createdsemesterdictionary=interiordesignsemesterdict)
+    print('Raw splitupsemesterdict:')
+    print(splitupsemesterdict)
     for i in splitupsemesterdict:
         print(f'Semester - {i}:\n{splitupsemesterdict[i]}\n')

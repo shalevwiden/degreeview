@@ -39,7 +39,9 @@ class makeSemesterFiles:
         
         self.schoolnamekey=list(schooldata)[0]
         self.schoolname=schooldata[self.schoolnamekey]
-        self.degreeviewfolderpath=os.path.abspath('degreeview')
+
+        # this one is fixed 
+        self.degreeviewfolderpath='/Users/shalevwiden/Downloads/Projects/degreeview'
         # this should work. If not I need to find a mystery
         self.schoolfilepath=os.path.join(self.degreeviewfolderpath,self.schoolname)
 
@@ -66,13 +68,14 @@ class makeSemesterFiles:
             
             degreefolderpath=os.path.join(self.schoolfilepath,degreename)
             # can change this quite easily
-            semestercsvfile=os.path.join(degreefolderpath,f'{degreename}semestercsvfile.csv')
+            semestercsvfilename=os.path.join(degreefolderpath,f'{degreename} semestercsvfile.csv')
 
             totalhours=0
             numberofsemesters=len(splitupsemesterdict)
             
             if numberofsemesters==8:
-                with open(semestercsvfile,newline='') as semestercsvfile:
+                # dont forget to put the w
+                with open(semestercsvfilename,'w',newline='') as semestercsvfile:
 
                     # .write stuff now mf
                     # split up sems 1-4 and 5-8 lol
@@ -81,29 +84,31 @@ class makeSemesterFiles:
                     writer.writerow(['','','','',''])
                     # due to the complex nature of the rows this needs a csv object
                     # this actually wont be necessary in excel. 
-                    csvobject=[]
+                    csvobject=[]                        
+                    csvobject.append(['','Course Code','Course Name','Hours','Category','Upper/Lower Division','','','','','','','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
+
                     for semesternum in range(len(splitupsemesterdict)):
                         semester=list(splitupsemesterdict)[semesternum]
                         # semester courses is a dictionary of its own as well
                         semestercourses=splitupsemesterdict[semester]
                         
-                        csvobject.append(['','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
                         if semesternum <=4:
                             csvobject.append([f'{semester}'])
                             for coursenameindex in range(len(semestercourses)):
 
                                 coursename=list(semestercourses)[coursenameindex]
+                                print(f'Coursename:{coursename}')
+                                print(f'Course list?{semestercourses[coursename]}')
 
                                 coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
                                 csvobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
                                 totalhours+=int(coursehours)
                             csvobject.append(['','','','',''])
 
-                        csvobject.append(['','','','','','','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
 
                         # all of this is more to the right. 
                         elif semesternum>4:
-                            
+                        
                             csvobject.append(['','','','','',f'{semester}'])
                             for coursenameindex in range(len(semestercourses)):
 
@@ -115,14 +120,15 @@ class makeSemesterFiles:
                                 totalhours+=int(coursehours)
                         csvobject.append(['','','','',''])
 
-
+                    for row in csvobject:
+                        writer.writerow(row)
 
                     writer.writerow(['','',f'Total Hours: {totalhours}','',''])
                     writer.writerow(['DegreeView','','','',''])
 
                     # this is for those giant architecture majors and some engineering that take like 6 years
             elif numberofsemesters>8:
-                print('PLACEHOLDER') 
+                print(f'{degreename} has {numberofsemesters} semesters which is more than 8') 
 
 
 
@@ -150,7 +156,7 @@ class makeSemesterFiles:
             splitupsemesterdict=splitupsemesters(createdsemesterdictionary=semesterdictionary)
             
             degreefolderpath=os.path.join(self.schoolfilepath,degreename)
-            semestercsvfile=os.path.join(degreefolderpath,f'{degreename}semesterexcelfile.csv')
+            semestercsvfile=os.path.join(degreefolderpath,f'{degreename} semesterexcelfile.csv')
 
 def make_mermaid_files(self):
         pass
@@ -169,6 +175,9 @@ def make_mermaid_files(self):
 
 
 
+os.chdir('/Users/shalevwiden/Downloads/Coding_Files/Python/BeautifulSoup_Library/college_course_scraping')
+workingdir=os.getcwd()
+print(f'Working dir:{workingdir}')
 # archdata testing
 archdata=theasset[0]
 
@@ -177,6 +186,14 @@ archschoolname=archdata[archschoolkey]
 # print(f'School key: {archschoolkey}. School name: {archschoolname}')
 
 architecturefiles=makeSemesterFiles(schooldata=archdata)
+print('Testing:\nArchitecture School Folder Path')
+print(architecturefiles.schoolfilepath)
+print('Testing:\nArchitecture School Name')
+
+print(getattr(architecturefiles,'schoolname'))
+print('Making CSV files now:\n')
+architecturefiles.makecsvfiles()
+
 
 def unpacktheasset_into_makefilesclass(theasset):
     pass
