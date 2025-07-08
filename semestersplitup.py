@@ -1,0 +1,17 @@
+semesterdictionary={'Semester 1': '1st Semester', 'Design I': ['ARI 310K', '3', 'Lower Division', '(Major)'], 'Visual Communication I': ['ARI 311K', '3', 'Lower Division', '(Major)'], 'Interiors and Society': ['ARI 318K', '3', 'Lower Division', '(Major)'], 'Mathematics': [['', '3', '', '(Core)']], 'First-Year Signature Course': ['UGS 302', '3', 'Lower Division', '(Core)'], 'Semester 2': '2nd Semester', 'Design II': ['ARI 310L', '3', 'Lower Division', '(Major)'], 'Visual Communication II': ['ARI 311L', '3', 'Lower Division', '(Major)'], 'Rhetoric and Writing': ['RHE 306', '3', 'Lower Division', '(Core)'], 'Elementary Physics for Nontechnical Students': ['PHY 309L', '3', 'Lower Division', '(Major)'], 'Introduction to Psychology': ['PSY 301', '3', 'Lower Division', '(General Education)'], 'Semester 3': '3rd Semester', 'Design III--Interiors': ['ARI 320K', '3', 'Upper Division', '(Major)'], 'Visual Communication III': ['ARI 221K', '2', 'Upper Division', '(Major)'], 'Construction I': ['ARC 415K', '4', 'Lower Division', '(Major)'], 'World Architecture: The Industrial Revolution to the Present': ['ARC 318L', '3', 'Lower Division', '(Major)'], 'Semester 4': '4th Semester', 'Design IV--Interiors': ['ARI 520L', '5', 'Upper Division', '(Major)'], 'Construction II--Interior Materials and Assemblies': ['ARI 434K', '4', 'Upper Division', '(Major)'], 'Interior Design History': ['ARI 318M', '3', 'Lower Division', '(Major)'], 'American and Texas Government': ['GOV 310L', '3', 'Lower Division', '(Core)'], 'Semester 5': '5th Semester', 'Design V--Interiors': ['ARI 530K', '5', 'Upper Division', '(Major)'], 'Environmental Controls I': ['ARI 324K', '3', 'Upper Division', '(Major)'], 'Interior Design History II': ['ARI 368R', '3', 'Upper Division', '(Major)'], 'Designing for Human Behavior': ['ARI 338', '3', 'Upper Division', '(Major)'], 'U.S. History': [['', '3', '', '(Core)'], ['', '3', '', '(Core)']], 'Semester 6': '6th Semester', 'Design VI--Interiors': ['ARI 530T', '5', 'Upper Division', '(Major)'], 'Environmental Controls II': ['ARC 334L', '3', 'Upper Division', '(Major)'], 'Interior Design Practice': ['ARI 362', '3', 'Upper Division', '(Major)'], 'British Literature': ['E 316L', '3', 'Lower Division', '(Core)'], 'Free elective': [['', '3', '', '(Elective)'], ['', '3', '', '(Elective)']], 'Semester 7': '7th Semester', 'Topics in Advanced Interior Design': ['ARI 560R', '5', 'Upper Division', '(Major)'], 'Topics in the History of Architecture': ['ARC 342R', '3', 'Upper Division', '(Major)'], 'Natural Science and Technology, Part II': [['', '3', '', '(Core)']], 'Semester 8': '8th Semester', 'Topics in Interior Design Theory': ['ARI 350R', '3', 'Upper Division', '(Major)'], 'Issues and Policies in American Government': ['GOV 312L', '3', 'Lower Division', '(Core)'], 'ARH course': [['', '3', '', '(General Education)']]}
+
+"""
+Splitting up a dictionary by a certain keyword in a simple forloop.
+That went smoother than I thought
+"""
+splitsemesterdict={}
+for key in semesterdictionary.keys():
+    if 'semester' in key.lower():
+        # this is like 1st semester, 2nd semester
+        currentsemester=semesterdictionary[key]
+        splitsemesterdict[currentsemester]={}
+    else:
+        splitsemesterdict[currentsemester][key]=semesterdictionary[key]
+
+for i in splitsemesterdict:
+    print(f'{i}:\n{splitsemesterdict[i]}\n')

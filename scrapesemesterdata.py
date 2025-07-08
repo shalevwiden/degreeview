@@ -168,8 +168,19 @@ def getallcourses_splitbysemester(suggcourse_link):
     print(f'Created semesterdictionary for{degreename}\n')
     return semesterdictionary
 
-def splitupsemesters(course_soup):
-    pass
+def splitupsemesters(createdsemesterdictionary):
+        
+    splitsemesterdict={}
+    for key in createdsemesterdictionary.keys():
+        if 'semester' in key.lower():
+            # this is like 1st semester, 2nd semester
+            currentsemester=createdsemesterdictionary[key]
+            splitsemesterdict[currentsemester]={}
+        else:
+            splitsemesterdict[currentsemester][key]=createdsemesterdictionary[key]
+
+    for i in splitsemesterdict:
+        print(f'{i}:\n{splitsemesterdict[i]}\n')
 # the semester headings have the "areaheader" class. Use this to our advantage later.
 
 if __name__=="__main__":
@@ -177,3 +188,5 @@ if __name__=="__main__":
     getallcourses_splitbysemester(suggcourse_link=interiordesignlink)
     print('\nThe following should be the semesterdictionary output\n')
     print(getallcourses_splitbysemester(suggcourse_link=interiordesignlink))
+
+    print(f'\nNow calling splitupsemesters function:\n')

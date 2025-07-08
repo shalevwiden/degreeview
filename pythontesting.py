@@ -127,4 +127,21 @@ print('All nums above 3' if all(n>3 for n in testall2) else 'They are below')
 testlist1=[1,2,3,4,5,4,3,2,1]
 numvar=6
 print('yes' if any(num==numvar for num in testlist1) else f'{numvar} not in testlist1')
+
+
+#%% 
+print('testmf')
+# I love abspath
+print(os.path.abspath('degreeview'))
+degreeviewfolderpath=os.path.abspath('degreeview')
+archname='School of Architecture'
+filepath=os.path.join(degreeviewfolderpath,archname)
+
+print(f'Filepath: {filepath}\n')
+print(type(filepath))
+
+
 # %%
+
+
+print('back to normal python')
