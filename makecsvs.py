@@ -4,7 +4,9 @@ import sys
 import shutil
 
 from theassetcontainment import theasset
-
+'''
+This one makes the SCHOOL SPECIFIC csvs (and future files), not degree specific like the other files
+'''
 # the asset is a list of dictionaries
 def getstats():
     print(len(theasset))

@@ -179,14 +179,16 @@ def splitupsemesters(createdsemesterdictionary):
         else:
             splitsemesterdict[currentsemester][key]=createdsemesterdictionary[key]
 
-    for i in splitsemesterdict:
-        print(f'{i}:\n{splitsemesterdict[i]}\n')
+    return splitsemesterdict
 # the semester headings have the "areaheader" class. Use this to our advantage later.
 
 if __name__=="__main__":
     print('Calling getallcourses_splitbysemester')
-    getallcourses_splitbysemester(suggcourse_link=interiordesignlink)
+    interiordesignsemesterdict=getallcourses_splitbysemester(suggcourse_link=interiordesignlink)
     print('\nThe following should be the semesterdictionary output\n')
     print(getallcourses_splitbysemester(suggcourse_link=interiordesignlink))
 
     print(f'\nNow calling splitupsemesters function:\n')
+    splitupsemesterdict=splitupsemesters(createdsemesterdictionary=interiordesignsemesterdict)
+    for i in splitupsemesterdict:
+        print(f'\n{splitupsemesterdict[i]}\n')

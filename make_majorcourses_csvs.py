@@ -104,7 +104,8 @@ def make_majorcoursesonly_csvs(schooldata):
         # school folder should already exist
          degreefolderpath=f'{degreeviewfolder}/{schoolfolder}/{degreename}'
         
-        # if it doesnt exist create it. If it does exist, we'll go work to it regardless. 
+        # if it doesnt exist create it. If it does exist, we'll go make it regardless. 
+        # degree folders, not school folders being made here
          if not os.path.exists(degreefolderpath):
             os.mkdir(degreefolderpath)
 

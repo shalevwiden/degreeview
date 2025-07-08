@@ -122,7 +122,21 @@ def make_suggcoursepage_and_degreename_dict(fullmajorlinks):
         suggcourselink=requests.get(link)
         suggcoursesoup=BeautifulSoup(suggcourselink.text,'html.parser')
         degreename=suggcoursesoup.find("h1",attrs={"id":"page-title"}).get_text().strip()
-        degreename=degreename.split(',')[-1].strip()
+        # change this to allow for degrees with more commas
+        if degreename.count(',')==1: 
+            # .count works for list and strings great
+            degreename=degreename.split(',')[-1].strip()
+        else:
+            suggheading,restofdegreename=degreename.split(',')[0], degreename.split(',')[1:]
+            degreename=''
+            for i in range(len(restofdegreename)):
+                if i==len(restofdegreename)-1:
+                    degreename+=f' {restofdegreename[i].strip()}'
+                else:
+                    degreename+=f'{restofdegreename[i].strip()},'
+            degreename=degreename.strip()
+
+        # this line right here, this is the magic 
         sugglink_and_degreename_dict[degreename]=link
     
     # add school name as the last item in the dict.
@@ -202,7 +216,7 @@ if __name__=='__main__':
     print('\n\n\n\n\n\n')
     print('List of Dicts:\n')
 
-    activate_theasset=False
+    activate_theasset=True
 
     if activate_theasset:
         #  -- the asset --

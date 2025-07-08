@@ -11,6 +11,10 @@ print(f'\nthe python version being used is:{sys.executable}\n')
 
 print('\xa0')
 
+'''
+This document consists of all the trial and error, playing around, and testing I had to do throughout this project to get the code right.
+'''
+
 # practice list comprehensions
 
 testlist=[1,2]
@@ -144,4 +148,19 @@ print(type(filepath))
 # %%
 
 
-print('back to normal python')
+# this bit of logic processes the degree heading from the suggested arrangement of courses tab
+# particularly the ones that have more than one comma
+# %%
+degreename='Suggested Arrangement of Courses, Speech, Language, and Hearing Sciences (BSSLH)'
+suggheading,restofdegreename=degreename.split(',')[0], degreename.split(',')[1:]
+degreename=''
+for i in range(len(restofdegreename)):
+    if i==-1:
+        degreename+=restofdegreename[i]
+    else:
+        degreename+=f'{restofdegreename[i]},'
+    
+print(degreename)
+
+# %%
+print('\nBack to normal python')

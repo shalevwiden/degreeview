@@ -19,6 +19,8 @@ if __name__=='__main__':
 from theassetcontainment import theasset
 
 from scrapesemesterdata import getallcourses_splitbysemester
+from scrapesemesterdata import splitupsemesters
+
 
 class makeSemesterFiles:
     '''
@@ -58,7 +60,16 @@ class makeSemesterFiles:
 
             
             semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
-
+            # now use this to write to csv files.
+            # I can actually finish this fast
+            splitupsemesterdict=splitupsemesters(createdsemesterdictionary=semesterdictionary)
+            
+            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
+            # can change this quite easily
+            semestercsvfile=os.path.join(degreefolderpath,f'{degreename}semestercsvfile.csv')
+            with open(semestercsvfile,newline='') as semestercsvfile:
+                # .write stuff now mf
+                # split up sems 1-4 and 5-8 lol
 
 
 
@@ -67,7 +78,21 @@ class makeSemesterFiles:
         This uses the result of the scrape semester data function to make an excel file out of it.
 
         '''
-        pass
+        for i in range(1,len(self.schooldata)):
+            key=list(self.schooldata)[i]
+            degreename=key
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[key]
+
+            
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            # now use this to write to csv files.
+            # I can actually finish this fast
+            splitupsemesterdict=splitupsemesters(createdsemesterdictionary=semesterdictionary)
+            
+            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
+            semestercsvfile=os.path.join(degreefolderpath,f'{degreename}semesterexcelfile.csv')
 
 def make_mermaid_files(self):
         pass
@@ -86,13 +111,17 @@ def make_mermaid_files(self):
 
 
 
-
+# archdata testing
 archdata=theasset[0]
+
 archschoolkey=list(archdata)[0]
 archschoolname=archdata[archschoolkey]
-print(f'School key: {archschoolkey}. School name: {archschoolname}')
+# print(f'School key: {archschoolkey}. School name: {archschoolname}')
 
+architecturefiles=makeSemesterFiles(schooldata=archdata)
 
+def unpacktheasset_into_makefilesclass(theasset):
+    pass
 # for a later document
 class makeMajorFiles:
     def __init__(self):
