@@ -177,29 +177,42 @@ print(a,b,c)
 # %%
 
 
-# vertical making logic:
-# uses a csv object list.
+#%%
+import requests
+import bs4
+from bs4 import BeautifulSoup
 
-for semesternum in range(5,9):
-                            # now use addnum to append, and see if this works...
-    addnum=semesternum=5
-    # well lets do that, csvobjectdict of semesternum+1
-    csvobjectdict[].append(['','','','','',f'{semester} MARKER'])
-    for coursenameindex in range(len(semestercourses)):
+# %%
+#sort the & stuff
+# this part is tricky as fuuuuuu
+geophysics_suggpage=requests.get('https://catalog.utexas.edu/undergraduate/geosciences/degrees-and-programs/bs-geological-sciences/sugg-geophysics-bsgeosci/')
+geosoup=BeautifulSoup(geophysics_suggpage.text,'html.parser')
 
-        coursename=list(semestercourses)[coursenameindex]
-        # if its NOT a list of lists:
-        if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-            coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-            csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
-            totalhours+=int(coursehours)
-        
+tr='''<tr class="odd"><td class="codecol"><a href="/search/?P=PHY%20301" title="PHY&nbsp;301" class="bubblelink code" onclick="return showCourse(this, 'PHY 301');">PHY&nbsp;301</a><br><span style="margin-left:20px;" class="blockindent">&amp;&nbsp;<a href="/search/?P=PHY%20101L" title="PHY&nbsp;101L" class="bubblelink code" onclick="return showCourse(this, 'PHY 101L');">PHY&nbsp;101L</a></span></td><td>Mechanics<br><span style="margin-left:20px;" class="blockindent">and Laboratory for Physics 301</span> (General Education)</td><td class="hourscol">4</td></tr>'''
+trsoup=BeautifulSoup(tr,'html.parser')
+tds=trsoup.find_all('td')
+for td in tds:
+    coursecode=tds[0]
+
+    # is this logic good? Idk but we shoudl check
+    coursename=tds[1]
+    if coursename.find('span', attrs={'class':"blockindent"}):
+        namepart=coursename.find('span', attrs={'class':"blockindent"}).get_text()
+    if coursecode.find('span', attrs={'class':"blockindent"}):
+        codepart=coursecode.find('span', attrs={'class':"blockindent"}).get_text()
+
+    # two ands in this mf
+    coursename='Wave Motion and Optics and Laboratory for Physics 315 (General Education)'
+    coursename=coursename.split('and')
+    fullname=''
+    for i in range(len(coursename)):
+        if i==len(coursename)-1:
+            fullname+=coursename[i].strip()+' and '
+
         else:
-            listofcourses=semestercourses[coursename]
-            for i in range(len(listofcourses)):
+            fullname+=coursename[i].strip()+' and '
 
-                coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+print(fullname)
+print(fullcode)
 
-
-    csvobjectdict.append(['','','','',''])
+# %%

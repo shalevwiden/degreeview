@@ -106,8 +106,8 @@ class makeSemesterFiles:
                             coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
                             csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
                             rowcount+=1
-
-                            totalhours+=int(coursehours)
+                            if coursehours!='':
+                                totalhours+=int(coursehours)
                         
                         else:
                             listofcourses=semestercourses[coursename]
@@ -116,8 +116,8 @@ class makeSemesterFiles:
                                 csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
                                 rowcount+=1
 
-                                totalhours+=int(coursehours)
-
+                                if coursehours!='':
+                                    totalhours+=int(coursehours)
 
 
                     # line between semesters
@@ -132,7 +132,7 @@ class makeSemesterFiles:
                     writer.writerow(csvobjectdict[row])
 
                 writer.writerow(['','',f'Total Hours: {totalhours}','',''])
-                writer.writerow(['DegreeView','','','',''])
+                writer.writerow(['DegreeView','','','','','DegreeView'])
 
                 # this is for those giant architecture majors and some engineering that take like 6 years
         
@@ -295,7 +295,6 @@ def make_mermaid_files(self):
 
 
 
-os.chdir('/Users/shalevwiden/Downloads/Coding_Files/Python/BeautifulSoup_Library/college_course_scraping')
 workingdir=os.getcwd()
 print(f'Working dir:{workingdir}')
 # archdata testing
@@ -316,8 +315,13 @@ architecturefiles.makecsvfiles()
 
 
 def unpacktheasset_into_makefilesclass(theasset):
-    pass
-# for a later document
+    for schooldict in theasset:
+        schoolobject=makeSemesterFiles(schooldata=schooldict)
+        # make csvs for every school
+        schoolobject.makecsvfiles()
+unpacktheasset_into_makefilesclass(theasset=theasset)
+
+# for a later document where I do this same thing but replicated. For this I will simply just modify the "make_majorcourses_csvs.py"
 class makeMajorFiles:
     def __init__(self):
         pass
