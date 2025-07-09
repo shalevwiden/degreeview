@@ -54,8 +54,12 @@ class makeSemesterFiles:
 
         # for each degree in school data
         for i in range(1,len(self.schooldata)):
+            
             key=list(self.schooldata)[i]
             degreename=key
+            degreename=degreename.replace('/','-').strip()
+
+            print(f'Starting process for {degreename} ')
             
             # kept as sugg link as continuity from make_makorcourses_csvs
             sugglink=self.schooldata[key]
@@ -64,15 +68,112 @@ class makeSemesterFiles:
             semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
             # now use this to write to csv files.
             # I can actually finish this fast
-            splitupsemesterdict=splitupsemesters(createdsemesterdictionary=semesterdictionary)
             
             degreefolderpath=os.path.join(self.schoolfilepath,degreename)
             # can change this quite easily
             semestercsvfilename=os.path.join(degreefolderpath,f'{degreename} semestercsvfile.csv')
 
             totalhours=0
-            numberofsemesters=len(splitupsemesterdict)
+            numberofsemesters=len(semesterdictionary)
+            csvobjectdict={}                        
+            print(f'csv object has been rest to {len(csvobjectdict)}\n\n\n\n\n\n\n')
             
+            rowcount=0
+            with open(semestercsvfilename,'w',newline='') as semestercsvfile:
+
+                # .write stuff now mf
+                # split up sems 1-4 and 5-8 lol
+                writer=csv.writer(semestercsvfile)
+                writer.writerow([f'{degreename}',"","","",f'{self.schoolname}',"The University of Texas at Austin"])
+                writer.writerow(['','','','',''])
+                # due to the complex nature of the rows this needs a csv object
+                # this actually wont be necessary in excel. 
+                writer.writerow(['','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
+                
+                
+                for semesternum in range(numberofsemesters):
+                    semester=list(semesterdictionary)[semesternum]
+                    # semester courses is a dictionary of its own as well
+                    semestercourses=semesterdictionary[semester]
+                    
+                    csvobjectdict[rowcount]=[f'{semester}']
+                    rowcount+=1
+                    for coursenameindex in range(len(semestercourses)):
+
+                        coursename=list(semestercourses)[coursenameindex]
+                        # if its NOT a list of lists:
+                        if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
+                            coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
+                            csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
+                            rowcount+=1
+
+                            totalhours+=int(coursehours)
+                        
+                        else:
+                            listofcourses=semestercourses[coursename]
+                            for i in range(len(listofcourses)):
+                                coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+                                csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
+                                rowcount+=1
+
+                                totalhours+=int(coursehours)
+
+
+
+                    # line between semesters
+                    csvobjectdict[rowcount]=['','','','','']
+                    rowcount+=1
+
+
+
+
+                print(f'len csv object={len(csvobjectdict)}')
+                for row in csvobjectdict:
+                    writer.writerow(csvobjectdict[row])
+
+                writer.writerow(['','',f'Total Hours: {totalhours}','',''])
+                writer.writerow(['DegreeView','','','',''])
+
+                # this is for those giant architecture majors and some engineering that take like 6 years
+        
+
+                
+
+
+
+        
+
+        print(f'Made a semestercsv for {degreename}:\n As {semestercsvfilename}')
+
+    def make_horizontal_csvfiles(self):
+         '''for each degree in school data make a csv thats horizontal with 4 semesters on each side.'''
+
+         ''' Only works for degrees with 8 semesters. '''
+         for i in range(1,len(self.schooldata)):
+            
+            key=list(self.schooldata)[i]
+            degreename=key
+            degreename=degreename.replace('/','-').strip()
+            print(f'Starting process for {degreename} ')
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[key]
+
+            
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            # now use this to write to csv files.
+            # I can actually finish this fast
+            
+            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
+            # can change this quite easily
+            semestercsvfilename=os.path.join(degreefolderpath,f'{degreename} semestercsvfile.csv')
+
+            totalhours=0
+            numberofsemesters=len(semesterdictionary)
+            csvobjectdict={}                        
+            print(f'csv object has been rest to {len(csvobjectdict)}\n\n\n\n\n\n\n')
+            
+            rowcount=0
             if numberofsemesters==8:
                 # dont forget to put the w
                 with open(semestercsvfilename,'w',newline='') as semestercsvfile:
@@ -84,62 +185,81 @@ class makeSemesterFiles:
                     writer.writerow(['','','','',''])
                     # due to the complex nature of the rows this needs a csv object
                     # this actually wont be necessary in excel. 
-                    csvobject=[]                        
-                    csvobject.append(['','Course Code','Course Name','Hours','Category','Upper/Lower Division','','','','','','','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
-
-                    for semesternum in range(len(splitupsemesterdict)):
-                        semester=list(splitupsemesterdict)[semesternum]
+                    writer.writerow(['','Course Code','Course Name','Hours','Category','Upper/Lower Division','','','','','','','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
+                    
+                    
+                    for semesternum in range(numberofsemesters):
+                        semester=list(semesterdictionary)[semesternum]
                         # semester courses is a dictionary of its own as well
-                        semestercourses=splitupsemesterdict[semester]
+                        semestercourses=semesterdictionary[semester]
                         
-                        if semesternum <=4:
-                            csvobject.append([f'{semester}'])
-                            for coursenameindex in range(len(semestercourses)):
+                        csvobjectdict[rowcount]=[f'{semester}']
+                        rowcount+=1
+                        for coursenameindex in range(len(semestercourses)):
 
-                                coursename=list(semestercourses)[coursenameindex]
-                                print(f'Coursename:{coursename}')
-                                print(f'Course list?{semestercourses[coursename]}')
-
+                            coursename=list(semestercourses)[coursenameindex]
+                            # if its NOT a list of lists:
+                            if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
                                 coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                                csvobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+                                csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
+                                rowcount+=1
                                 totalhours+=int(coursehours)
-                            csvobject.append(['','','','',''])
+                            
+                            else:
+                                listofcourses=semestercourses[coursename]
+                                for i in range(len(listofcourses)):
+                                    coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+                                    csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
+                                    rowcount+=1
+
+
+                        # line between semesters
+                        csvobjectdict[rowcount]=['','','','','']
+                        rowcount+=1
 
 
                         # all of this is more to the right. 
-                        elif semesternum>4:
-                        
-                            csvobject.append(['','','','','',f'{semester}'])
-                            for coursenameindex in range(len(semestercourses)):
+                        # for semesternum in range(5,9):
+                        #     # now use addnum to append, and see if this works...
+                        #     addnum=semesternum=5
+                        #     # well lets do that, csvobjectdict of semesternum+1
+                        #     csvobjectdict[].append(['','','','','',f'{semester} MARKER'])
+                        #     for coursenameindex in range(len(semestercourses)):
 
-                                coursename=list(semestercourses)[coursenameindex]
+                        #         coursename=list(semestercourses)[coursenameindex]
+                        #         # if its NOT a list of lists:
+                        #         if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
+                        #             coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
+                        #             csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+                        #             totalhours+=int(coursehours)
+                                
+                        #         else:
+                        #             listofcourses=semestercourses[coursename]
+                        #             for i in range(len(listofcourses)):
 
-                                coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                                csvobject.append(["",'','','','','',coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+                        #                 coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+                        #                 csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
 
-                                totalhours+=int(coursehours)
-                        csvobject.append(['','','','',''])
 
-                    for row in csvobject:
-                        writer.writerow(row)
+                        #     csvobjectdict.append(['','','','',''])
+
+
+
+
+                    print(f'len csv object={len(csvobjectdict)}')
+                    for row in csvobjectdict:
+                        writer.writerow(csvobjectdict[row])
 
                     writer.writerow(['','',f'Total Hours: {totalhours}','',''])
                     writer.writerow(['DegreeView','','','',''])
 
                     # this is for those giant architecture majors and some engineering that take like 6 years
-            elif numberofsemesters>8:
-                print(f'{degreename} has {numberofsemesters} semesters which is more than 8') 
-
-
-
-
-
-        print(f'Made a semestercsv for {degreename}:\n As {semestercsvfile}')
-
-
+        
     def make_excel_files(self):
         '''
         This uses the result of the scrape semester data function to make an excel file out of it.
+        For the CSV files I did them fully vertical. For these excel files, since I can control what columns and cells things are going,
+        I want it to be more of a horizontal feel. 
 
         '''
         for i in range(1,len(self.schooldata)):
@@ -153,7 +273,7 @@ class makeSemesterFiles:
             semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
             # now use this to write to csv files.
             # I can actually finish this fast
-            splitupsemesterdict=splitupsemesters(createdsemesterdictionary=semesterdictionary)
+            semesterdictionary=splitupsemesters(createdsemesterdictionary=semesterdictionary)
             
             degreefolderpath=os.path.join(self.schoolfilepath,degreename)
             semestercsvfile=os.path.join(degreefolderpath,f'{degreename} semesterexcelfile.csv')

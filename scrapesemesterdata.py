@@ -45,7 +45,7 @@ def getallcourses_splitbysemester(suggcourse_link):
     semesterdictionary={}
     # can do multiple find alls hmmm
     degreename=course_soup.find('h1',attrs={"id":"page-title"}).get_text().strip()
-    degreename=degreename.split(',')[-1].replace('\\','-').strip()
+    degreename=degreename.split(',')[-1].replace('\\','-').replace('/','-').strip()
     # I think I can do all the logic in this function turns out.
     # get only the even and odd trs for sure - this gets the semester headings too
     unfiltered_trs=course_soup.find_all('tr',attrs={"class":["even","odd"]})
@@ -61,19 +61,26 @@ def getallcourses_splitbysemester(suggcourse_link):
     semestercount=0
     # for every grouping of names, code, hours, status
     # this is the BIG FOR LOOP
+    currentsemester=''
+
+    beforecount=0
+    aftercount=0
     for row in trs:
         if  "areaheader" not in row.get("class",[]):
             tds=row.find_all('td')
             if len(tds)==3:
+                
+                coursename=tds[1].get_text()
+                coursename_and_type=coursename.split('(')
+                beforecount+=1
 
-                coursename=tds[1]
-            
-                coursename_and_type=coursename.get_text().split('(')
+                # print(f'len of course name and type:{len(coursename_and_type)}')
         # only keep the first bit of the sentence, the useful info
                 coursename=coursename_and_type[0].strip()
+                aftercount+=1
 
-                coursetype=coursename_and_type[1].split(')')[0]
-
+                coursetype=coursename_and_type[-1].split(')')[0]
+                
                 firsttd=tds[0]
 
                 # looks for the a's in the current td list
@@ -82,6 +89,7 @@ def getallcourses_splitbysemester(suggcourse_link):
                 for coursecode in coursecodes:
                     # defines coursecode here although tricky. Remove Unicode space.
                     coursecode=coursecode.text.replace('\xa0',' ')
+                    
 
                 
 
@@ -92,7 +100,7 @@ def getallcourses_splitbysemester(suggcourse_link):
                 lowerdivstatus="Lower Division"
                 upperdivstatus="Upper Division"
                 status=''
-                # check if theres a number in it
+                # check if theres a number in it then move onto the logoic
                 if any(char.isdigit() for char in coursecode):
                     coursenum=coursecode.split(' ')[-1][1:3]
                     if int(coursenum)>=20:
@@ -110,7 +118,10 @@ def getallcourses_splitbysemester(suggcourse_link):
                 # .get returns many diferent attributes - very useful
                 if "hourscol" in thirdtd.get("class",[]):
                     coursehours=thirdtd.get_text()
-                semesterdictionary[coursename]=[coursecode, coursehours, status, f'({coursetype})']
+
+                # making the dictionary of dictionaries logic here
+              
+                semesterdictionary[currentsemester][coursename]=[coursecode, coursehours, status, f'({coursetype})']
 
                 # get and add the upper and lower division stuff
                 
@@ -132,6 +143,7 @@ def getallcourses_splitbysemester(suggcourse_link):
 
 
 
+
                 # getting and assigning the status variable
                 lowerdivstatus="Lower Division"
                 upperdivstatus="Upper Division"
@@ -141,7 +153,7 @@ def getallcourses_splitbysemester(suggcourse_link):
                 elif "upper" in coursename.lower():
                     status=upperdivstatus
                 else:
-                    # if neither upper or lower leave it blank
+                    # if neither upper or lower leave it blank. Remember these are the lines with no course code
                     status=''
 
                 secondtd=tds[1]
@@ -152,11 +164,15 @@ def getallcourses_splitbysemester(suggcourse_link):
                     coursehours=secondtd.get_text()
                 
                 # now adding to the dictionary logic
-                if coursename not in semesterdictionary:
-                    # removed it from "no course code" to just an empty string
-                    semesterdictionary[coursename]=[['', coursehours,status, f'({coursetype})']]
+                
+                # this was certainly a thought experiment mf
+               
+                # this is for multiple of one class in one semester. LIke "upper div elective"
+                # however when theres multiple they usually never have a coursecode.
+                if coursename not in semesterdictionary[currentsemester]:
+                    semesterdictionary[currentsemester][coursename]=[['', coursehours, status, f'({coursetype})']]
                 else:
-                    semesterdictionary[coursename].append(['',coursehours,status, f'({coursetype})'])
+                    semesterdictionary[currentsemester][coursename].append(['',coursehours,status, f'({coursetype})'])
 
                     # get upper div by textin coursename for this one since no coursecode
                 
@@ -164,12 +180,32 @@ def getallcourses_splitbysemester(suggcourse_link):
         elif  "areaheader" in row.get("class",[]):
             semestercount+=1
 
-            semesternum=row.find('span',{"class":["courselistcomment","areaheader"]}).get_text()
-            semesterdictionary[f'Semester {semestercount}']=semesternum
-            
+            semesterorder=row.select_one('span.courselistcomment.areaheader').get_text() 
+            currentsemester=semesterorder
+            # establish each semester dictionary
+            semesterdictionary[currentsemester]={}
+
+
+    print(f'before count {beforecount} after count {aftercount}')
     print(f'Created semesterdictionary for {degreename}\n')
     return semesterdictionary
 
+
+if __name__=="__main__":
+    print('Calling getallcourses_splitbysemester')
+   
+    print('Economics:')
+    economicslink='https://catalog.utexas.edu/undergraduate/liberal-arts/degrees-and-programs/bachelor-of-arts-plan-i/economics/sugg-eco-ba/'
+    econdict=getallcourses_splitbysemester(suggcourse_link=economicslink)
+    print(f'\nEcondict\n\n{econdict}\n\n')
+    for currentsemester in econdict:
+        print(f'Sem:{currentsemester}:\n{econdict[currentsemester]}')
+        print(f'len of {currentsemester}: {len(econdict[currentsemester])}')
+
+
+
+# old stufff
+# this one has now been merged with the above and is somewhat deprecated. 
 def splitupsemesters(createdsemesterdictionary):
         
     splitsemesterdict={}
@@ -183,16 +219,3 @@ def splitupsemesters(createdsemesterdictionary):
 
     return splitsemesterdict
 # the semester headings have the "areaheader" class. Use this to our advantage later.
-
-if __name__=="__main__":
-    print('Calling getallcourses_splitbysemester')
-    interiordesignsemesterdict=getallcourses_splitbysemester(suggcourse_link=interiordesignlink)
-    print('\nThe following should be the semesterdictionary output\n')
-    print(getallcourses_splitbysemester(suggcourse_link=interiordesignlink))
-
-    print(f'\nNow calling splitupsemesters function:\n')
-    splitupsemesterdict=splitupsemesters(createdsemesterdictionary=interiordesignsemesterdict)
-    print('Raw splitupsemesterdict:')
-    print(splitupsemesterdict)
-    for i in splitupsemesterdict:
-        print(f'Semester - {i}:\n{splitupsemesterdict[i]}\n')

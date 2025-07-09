@@ -28,3 +28,7 @@ It scrapes all courses and seperates them by semester, primed for visualization 
 I highly value making code slighly more complicated and adding a ton of comments everywhere for better understanding when going back to the code and better readability. In this project I have certainly needed it.
 
 I utilized helper projects as well. Such as one to help me clear folders when I needed to create new files.
+
+Came up with an innovative solution to print items in a csv horizontally.
+
+Create both horizontal AND vertical fuk it.

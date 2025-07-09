@@ -171,5 +171,35 @@ print(keysdict.keys())
 print(len(keysdict.keys()))
 print(len(keysdict))
 # %%
+
 a,b,c=[5,6,7]
 print(a,b,c)
+# %%
+
+
+# vertical making logic:
+# uses a csv object list.
+
+for semesternum in range(5,9):
+                            # now use addnum to append, and see if this works...
+    addnum=semesternum=5
+    # well lets do that, csvobjectdict of semesternum+1
+    csvobjectdict[].append(['','','','','',f'{semester} MARKER'])
+    for coursenameindex in range(len(semestercourses)):
+
+        coursename=list(semestercourses)[coursenameindex]
+        # if its NOT a list of lists:
+        if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
+            coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
+            csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+            totalhours+=int(coursehours)
+        
+        else:
+            listofcourses=semestercourses[coursename]
+            for i in range(len(listofcourses)):
+
+                coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+                csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+
+
+    csvobjectdict.append(['','','','',''])
