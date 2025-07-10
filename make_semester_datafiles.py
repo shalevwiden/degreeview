@@ -250,7 +250,7 @@ class makeSemesterFiles:
                     for row in csvobjectdict:
                         writer.writerow(csvobjectdict[row])
 
-                    writer.writerow(['','',f'Total Hours: {totalhours}','',''])
+                    writer.writerow(['','','',f'Total Hours: {totalhours}','',''])
                     writer.writerow(['DegreeView','','','',''])
 
                     # this is for those giant architecture majors and some engineering that take like 6 years

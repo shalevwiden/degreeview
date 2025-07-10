@@ -51,7 +51,7 @@ def getallcourses_splitbysemester(suggcourse_link):
     unfiltered_trs=course_soup.find_all('tr',attrs={"class":["even","odd"]})
 
     trs=[]
-    # filter to remove orclass tds and add those to trs list. This is kinda complex.
+    # filter to remove orclass tds and add those to trs list
     for tr in unfiltered_trs:
         tds=tr.find_all('td')
         # all keyword checks if all elements are true. In this case, true or false if orclass in each td
@@ -84,15 +84,58 @@ def getallcourses_splitbysemester(suggcourse_link):
                     coursename=coursename.strip()
 
                     coursetype=''
-                    
-                firsttd=tds[0]
+                # now that the coursename is formatted, lets deal with the & stuff
 
+
+                firsttd=tds[0]
+                
                 # looks for the a's in the current td list
                 coursecodes=firsttd.find_all('a',attrs={"class": ["bubblelink", "code"]})
                 # print(f'len of coursecodes is {len(coursecodes)}\n')
-                for coursecode in coursecodes:
-                    # defines coursecode here although tricky. Remove Unicode space.
-                    coursecode=coursecode.text.replace('\xa0',' ')
+                if len(coursecodes)>1:
+                    fullcoursecode=''
+                    for i in range(len(coursecodes)):
+                        if i==len(coursecodes)-1:
+                            fullcoursecode+=coursecodes[i].text.replace('\xa0',' ')
+                        else:
+                            fullcoursecode+=f'{coursecodes[i].text.replace('\xa0',' ')} & '
+
+
+                    coursecode=fullcoursecode
+                    print(f'Early coursecode is {coursecode}')
+
+                else:
+                    for onecoursecode in coursecodes:
+                        # defines coursecode here although tricky. Remove Unicode space.
+                        # coursecode is essentially just a string here
+                        coursecode=onecoursecode.text.replace('\xa0',' ')
+                    
+
+# -----------------------------------------------------------------------------------------------
+                # now that the unicode code is out, look for the & and replace them
+                # have to use the original html tag not the text
+                nameblock=tds[1].find('span',class_="blockindent")
+                codeblock=tds[0].find('span',class_="blockindent")
+
+                originalcoursecode=coursecode
+
+
+                if nameblock:   
+                    coursename=coursename.split('and')
+
+                    fullname=''
+                    for i in range(len(coursename)):
+                        if i==len(coursename)-1:
+                            fullname+=coursename[i].strip()
+
+                        else:
+                            fullname+=coursename[i].strip()+' and '
+                    # reassign
+                    coursename=fullname
+                    
+                
+                    # end dealing with 'and' stuff
+                
                     
 
                 
@@ -104,13 +147,22 @@ def getallcourses_splitbysemester(suggcourse_link):
                 lowerdivstatus="Lower Division"
                 upperdivstatus="Upper Division"
                 status=''
-                # check if theres a number in it then move onto the logoic
-                if any(char.isdigit() for char in coursecode):
-                    coursenum=coursecode.split(' ')[-1][1:3]
-                    if int(coursenum)>=20:
-                        status=upperdivstatus
-                    else:
-                        status=lowerdivstatus
+                # check if theres a number in it then move onto the logic
+                if not codeblock:
+                    if any(char.isdigit() for char in coursecode):
+                        coursenum=coursecode.split(' ')[-1][1:3]
+                        if int(coursenum)>=20:
+                            status=upperdivstatus
+                        else:
+                            status=lowerdivstatus
+                elif codeblock:
+                    firstcourse=coursecode.split('&')[0].strip()
+                    if any(char.isdigit() for char in firstcourse):
+                            coursenum=coursecode.split(' ')[-1][1:3]
+                            if int(coursenum)>=20:
+                                status=upperdivstatus
+                            else:
+                                status=lowerdivstatus
               
 
                 
@@ -135,7 +187,7 @@ def getallcourses_splitbysemester(suggcourse_link):
             elif len(tds)==2:
 
 
-                coursename=tds[0].get_text()
+                coursename=tds[0]
 
                         
                 if '(' in coursename:
@@ -146,7 +198,7 @@ def getallcourses_splitbysemester(suggcourse_link):
                     coursetype=coursename_and_type[1].split(')')[0]
                     coursetype=f'({coursetype})'
                 else:
-                    coursename=coursename.strip()
+                    coursename=coursename.get_text().strip()
                     coursetype=''
 
 
@@ -210,6 +262,16 @@ if __name__=="__main__":
     for currentsemester in econdict:
         print(f'Sem:{currentsemester}:\n{econdict[currentsemester]}')
         print(f'len of {currentsemester}: {len(econdict[currentsemester])}')
+
+
+    print('Geophysics stuff')
+
+    geolink='https://catalog.utexas.edu/undergraduate/geosciences/degrees-and-programs/bs-geological-sciences/sugg-geophysics-bsgeosci/'
+    geo_dict=getallcourses_splitbysemester(suggcourse_link=geolink)
+    print(f'\nEcondict\n\n{geo_dict}\n\n')
+    for currentsemester in geo_dict:
+        print(f'Sem:{currentsemester}:\n{geo_dict[currentsemester]}')
+        print(f'len of {currentsemester}: {len(geo_dict[currentsemester])}')
 
 
 

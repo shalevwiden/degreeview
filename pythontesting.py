@@ -182,37 +182,72 @@ import requests
 import bs4
 from bs4 import BeautifulSoup
 
-# %%
-#sort the & stuff
-# this part is tricky as fuuuuuu
+
 geophysics_suggpage=requests.get('https://catalog.utexas.edu/undergraduate/geosciences/degrees-and-programs/bs-geological-sciences/sugg-geophysics-bsgeosci/')
 geosoup=BeautifulSoup(geophysics_suggpage.text,'html.parser')
 
+
+'''The following code is very helpful to understand what the heck is going on with the & stuff. 
+
+Turns out the coursecode stuff was modified more simply, but the coursename stuff was needed.
+
+'''
 tr='''<tr class="odd"><td class="codecol"><a href="/search/?P=PHY%20301" title="PHY&nbsp;301" class="bubblelink code" onclick="return showCourse(this, 'PHY 301');">PHY&nbsp;301</a><br><span style="margin-left:20px;" class="blockindent">&amp;&nbsp;<a href="/search/?P=PHY%20101L" title="PHY&nbsp;101L" class="bubblelink code" onclick="return showCourse(this, 'PHY 101L');">PHY&nbsp;101L</a></span></td><td>Mechanics<br><span style="margin-left:20px;" class="blockindent">and Laboratory for Physics 301</span> (General Education)</td><td class="hourscol">4</td></tr>'''
+falsetr='''<tr class="even"><td class="codecol"><a href="/search/?P=CH%20302" title="CH&nbsp;302" class="bubblelink code" onclick="return showCourse(this, 'CH 302');">CH&nbsp;302</a></td><td>Principles of Chemistry II (Core) <sup>030</sup></td><td class="hourscol">3</td></tr>'''
 trsoup=BeautifulSoup(tr,'html.parser')
 tds=trsoup.find_all('td')
-for td in tds:
-    coursecode=tds[0]
 
-    # is this logic good? Idk but we shoudl check
-    coursename=tds[1]
-    if coursename.find('span', attrs={'class':"blockindent"}):
-        namepart=coursename.find('span', attrs={'class':"blockindent"}).get_text()
-    if coursecode.find('span', attrs={'class':"blockindent"}):
-        codepart=coursecode.find('span', attrs={'class':"blockindent"}).get_text()
+coursecode=tds[0]
 
-    # two ands in this mf
-    coursename='Wave Motion and Optics and Laboratory for Physics 315 (General Education)'
+# is this logic good? Idk but we should check
+coursename=tds[1]
+nameblock=coursename.find('span',class_="blockindent")
+codeblock=coursecode.find('span',class_="blockindent")
+
+coursecode=tds[0].get_text()
+originalcoursecode=coursecode
+coursename=tds[1].get_text()    
+
+
+if nameblock:   
     coursename=coursename.split('and')
+
     fullname=''
     for i in range(len(coursename)):
         if i==len(coursename)-1:
-            fullname+=coursename[i].strip()+' and '
+            fullname+=coursename[i].strip()
 
         else:
             fullname+=coursename[i].strip()+' and '
 
+    
+if codeblock:
+    print(f'\nCodeblock found:\n{codeblock}')
+    print(f'Codeblock text:\n{codeblock.get_text()}\n')
+
+
+    coursecode=coursecode.split('&')
+    fullcode=''
+    for i in range(len(coursecode)):
+        if i==len(coursecode)-1:
+            fullcode+=coursecode[i].strip()
+
+        else:
+            fullcode+=coursecode[i].strip()+' & '
+else:
+    print('No codeblock')
+
+
+# two ands in this mf
+coursename='Wave Motion and Optics and Laboratory for Physics 315 (General Education)'
+
+print(f'Original coursecode {originalcoursecode}')
+
+
+
+
+print('fullname')
 print(fullname)
+print('\n\nfullcode\n')
 print(fullcode)
 
-# %%
