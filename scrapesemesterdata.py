@@ -102,7 +102,6 @@ def getallcourses_splitbysemester(suggcourse_link):
 
 
                     coursecode=fullcoursecode
-                    print(f'Early coursecode is {coursecode}')
 
                 else:
                     for onecoursecode in coursecodes:

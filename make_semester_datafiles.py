@@ -149,7 +149,7 @@ class makeSemesterFiles:
                 for row in csvobjectdict:
                     writer.writerow(csvobjectdict[row])
 
-                writer.writerow(['','',f'Total Hours: {totalhours}','',''])
+                writer.writerow(['','','',f'Total Hours: {totalhours}',''])
                 writer.writerow(['DegreeView','','','','','DegreeView'])
 
                 # this is for those giant architecture majors and some engineering that take like 6 years
@@ -333,13 +333,13 @@ class makeSemesterFiles:
             subheadingsfont=Font(size=16,bold=True)
             utnamefont=Font(size=20, color='FFBF5701', name='Georgia',bold=True)
             # update later
-            semesterfont=Font(bold=True)
+            semesterfont=Font(bold=True,size=16)
 
-            datafont=Font(size=15,name='Helvetica',underline='singleAccounting')
+            datafont=Font(size=15,name='Helvetica',underline='single')
 
 
-            degreename='placeholder'
-            schoolname='schoolplaceholder'
+            leftalign=Alignment(horizontal='left')
+            centeralign=Alignment(horizontal='center')
 
 
 
@@ -347,7 +347,7 @@ class makeSemesterFiles:
 
 
             # first row after title that is. Start at row 3 since rows 1 and 2 were merged
-            firstrow=[f'{degreename}',"","","",f'{schoolname}',"The University of Texas at Austin"]
+            firstrow=[f'{degreename}',"","","",f'{self.schoolname}',"The University of Texas at Austin"]
                 
             # colindex is like i            
             # start= 1 means start at the first column
@@ -379,68 +379,85 @@ class makeSemesterFiles:
 
 
             # now the meat of the file, the data
-            data=[[1,2,3],[1,2,3],[9,4,5,6],[8,5,4,3,4,5],[19,20,23]]
-
-            rowval=6
-            for dataindex in range(len(data)):
-                # update it here so it updates by row not column...although
-                rowval+=1
-
-                for col_index, value in enumerate(data[dataindex], start=1):
-                            
-                    datacell=ws.cell(row=rowval, column=col_index, value=value)
-                    # use.font to assign the font I see
-                    datacell.font=datafont
+            
 
 
 
-                
-                for semesternum in range(numberofsemesters):
-                    semester=list(semesterdictionary)[semesternum]
-                    # semester courses is a dictionary of its own as well
-                    semestercourses=semesterdictionary[semester]
+            # for each semester
+            rowcount=0
+            for semesternum in range(numberofsemesters):
+                semester=list(semesterdictionary)[semesternum]
+                # semester courses is a dictionary of its own as well
+                semestercourses=semesterdictionary[semester]
+                # that means the semester will be on the first row
+                excelobject.append([f'{semester}'])
+                rowcount+=1
+                for coursenameindex in range(len(semestercourses)):
+
+                    coursename=list(semestercourses)[coursenameindex]
+                    # if its NOT a list of lists, ie, a normal course entry
+                    if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
+                        coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
+                        excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+                        rowcount+=1
+                        if coursehours!='':
+                            totalhours+=int(coursehours)
                     
-                    csvobjectdict[rowcount]=[f'{semester}']
-                    rowcount+=1
-                    for coursenameindex in range(len(semestercourses)):
-
-                        coursename=list(semestercourses)[coursenameindex]
-                        # if its NOT a list of lists:
-                        if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-                            coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                            csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
+                    else:
+                        listofcourses=semestercourses[coursename]
+                        for i in range(len(listofcourses)):
+                            coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+                            excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
                             rowcount+=1
+
                             if coursehours!='':
                                 totalhours+=int(coursehours)
-                        
-                        else:
-                            listofcourses=semestercourses[coursename]
-                            for i in range(len(listofcourses)):
-                                coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                                csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
-                                rowcount+=1
-
-                                if coursehours!='':
-                                    totalhours+=int(coursehours)
 
 
-                    # line between semesters
-                    csvobjectdict[rowcount]=['','','','','']
-                    rowcount+=1
+                # line between semesters
+                excelobject.append(['','','','',''])
+                rowcount+=1
+
+            # adding to excel file
+            # rowval is important for adding rows in order
+            rowval=6
+
+            for rowentry in range(len(excelobject)):
+                # update it here so it updates by row not column...although
+                rowval += 1
+                        # start at column one, and then remember the padding rows are added later. 
+                for col_index, value in enumerate(excelobject[rowentry], start=1):
+                    # change alignnment here. 1 indexed not 0
+                    datacell = ws.cell(row=rowval, column=col_index, value=value)
+
+                    if col_index==1:
+                        # use.font to assign the font I see
+                        datacell.font=semesterfont
+                        datacell.alignment=centeralign
+                    elif col_index in [2,3]:
+                        datacell.font=datafont
+                        datacell.alignment=leftalign
+                    elif col_index==4: #hourscol
+                        datacell.font=datafont
+                        datacell.alignment=centeralign
+                    elif col_index in [5,6]:
+                        datacell.font=datafont
+                        datacell.alignment=leftalign
+                    
+            
+                       
 
 
-
-
-                print(f'len csv object={len(csvobjectdict)}')
-                for row in csvobjectdict:
-                    writer.writerow(csvobjectdict[row])
+            print(f'Excel object for {degreename}:\n{excelobject}')
+            print(f'len excel object={len(excelobject)}')
+            
 
 # -----------------------------end data stuff --------------------------------------------------------
-                            # writer.writerow(['','',f'Total Hours: {totalhours}','',''])
+                            
             ws.append(blankrow)
-
+            ws.append(['','','',f'Total Hours: {totalhours}','',''])
             lastrow=['DegreeView','','','','','DegreeView']
-            lastrowindex=len(data)+6 #=3 because 3 rows before data
+            lastrowindex=rowcount+6 # 6 rows before we start data stuff. Then rowcount is the amount of data. 
 
             for col_index, value in enumerate(lastrow, start=1):
                 
@@ -483,7 +500,7 @@ class makeSemesterFiles:
             ws.merge_cells('B2:G3')    
             ws.row_dimensions[2].height = 30
             ws.row_dimensions[3].height = 30
-            mergedrowcontent=f'{degreename} Semesters'
+            mergedrowcontent=f'{degreename} Semester Layout'
             
             # refer to top left of merged cells
             titlecell=ws['B2']
@@ -589,7 +606,7 @@ print('Testing:\nArchitecture School Name')
 
 print(getattr(architecturefiles,'schoolname'))
 
-# architecturefiles.makeexcelfiles()
+architecturefiles.make_excel_files()
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
