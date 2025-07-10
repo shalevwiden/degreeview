@@ -32,3 +32,7 @@ I utilized helper projects as well. Such as one to help me clear folders when I 
 Came up with an innovative solution to print items in a csv horizontally.
 
 Create both horizontal AND vertical fuk it.
+
+### Excel Files creation with OpenPyXL
+
+- Created responsive data creation, including a responsive border that goes around all data.

@@ -251,3 +251,39 @@ print(fullname)
 print('\n\nfullcode\n')
 print(fullcode)
 
+# %%
+maxlist=list(range(10,50))
+print(max(maxlist))
+print(min(maxlist))
+# %%
+
+#%% 
+#triangular growth sequence
+
+newval=0
+for i in range(1,10):
+    newval+=i
+    print(newval)
+# %%
+
+# %%
+# openpyxl stuff
+ sides = {}
+# loop through all rows and see if it matches this criteria
+if row_index == min_row:
+    sides['top'] = entire_ws_border
+if row_index == max_row:
+    sides['bottom'] = entire_ws_border
+if col_index == min_col:
+    sides['left'] = entire_ws_border
+if col_index == max_col:
+    sides['right'] = entire_ws_border
+
+# remember we defined side. and you do Border(Side=style))
+# dictionary unpacking
+'''
+This is the final peice of the puzzle that adds borders.
+sides dict for every cell. If sides if empty, then
+cell.border = Border(), which defines no borders
+'''
+cell.border = Border(**sides)
