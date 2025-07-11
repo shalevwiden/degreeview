@@ -94,7 +94,7 @@ class makeSemesterFiles:
             totalhours=0
             numberofsemesters=len(semesterdictionary)
             csvobjectdict={}                        
-            print(f'csv object has been rest to {len(csvobjectdict)}\n\n\n\n\n\n\n')
+            print(f'\ncsv object has been rest to {len(csvobjectdict)}\n\n\n')
             
             rowcount=0
             with open(semestercsvfilename,'w',newline='') as semestercsvfile:
@@ -340,6 +340,7 @@ class makeSemesterFiles:
 
             leftalign=Alignment(horizontal='left')
             centeralign=Alignment(horizontal='center')
+            
 
 
 
@@ -453,18 +454,28 @@ class makeSemesterFiles:
             
 
 # -----------------------------end data stuff --------------------------------------------------------
-                            
             ws.append(blankrow)
-            ws.append(['','','',f'Total Hours: {totalhours}','',''])
+            totalhoursrow=['','','',f'Total Hours: {totalhours}','','']
+
+            lastrowindex=rowcount+6
+            for col_index, value in enumerate(totalhoursrow, start=1):
+                
+                # use.font to assign the font I see
+                cell=ws.cell(row=lastrowindex, column=col_index, value=value)
+                # FF=full opacity 
+                cell.font=datafont
+
+           
             lastrow=['DegreeView','','','','','DegreeView']
-            lastrowindex=rowcount+6 # 6 rows before we start data stuff. Then rowcount is the amount of data. 
+            lastrowindex+=2 # 6 rows before we start data stuff. Then rowcount is the amount of data. 
 
             for col_index, value in enumerate(lastrow, start=1):
                 
                 # use.font to assign the font I see
                 lastcell=ws.cell(row=lastrowindex, column=col_index, value=value)
                 # FF=full opacity 
-                lastcell.font=Font(size=16, bold=True, color='FF005f76')
+                lastcell.font=Font(size=18, bold=True, color='FF005f76')
+                lastcell.alignment=Alignment(textRotation=161)
 
 
 
@@ -472,6 +483,7 @@ class makeSemesterFiles:
             # ---------------formatting stuff------------------
             
             # add padding
+            
             
             ws.insert_rows(1)      #new row
             ws.insert_cols(1)       # new col
@@ -486,9 +498,29 @@ class makeSemesterFiles:
                 firstcell=column_cells[0]
                 # every cell has a .column_letter attribute
                 col_letter = firstcell.column_letter
-                ws.column_dimensions[col_letter].width = int(colwidth)*2
+                col_index=column_index_from_string(col_letter)
+                # scale the width factor
+                if col_index==7:  
+                    # make the UT Austin column alot wider
+                    ws.column_dimensions[col_letter].width = int(colwidth)*2
+                elif col_index==6:
+                    ws.column_dimensions[col_letter].width = int(colwidth)*1.4
+                elif col_index==5:
+                    ws.column_dimensions[col_letter].width=int(colwidth)*.7
 
-            # set sizes for the padding row and column. 10 units of default font which is usually Arial it seems
+                # the semester column
+                elif col_index==2:
+                    ws.column_dimensions[col_letter].width=int(colwidth)*.7
+            
+
+                else:
+                    ws.column_dimensions[col_letter].width = int(colwidth)*1.2
+                
+
+
+
+            # set sizes for the padding row and column. Units of default font which is usually Arial it seems
+
             ws.column_dimensions['A'].width=15
             ws.column_dimensions['H'].width=15
             ws.row_dimensions[1].height=25
@@ -500,7 +532,7 @@ class makeSemesterFiles:
             ws.merge_cells('B2:G3')    
             ws.row_dimensions[2].height = 30
             ws.row_dimensions[3].height = 30
-            mergedrowcontent=f'{degreename} Semester Layout'
+            mergedrowcontent=f'{degreename} Sample Semester Layout'
             
             # refer to top left of merged cells
             titlecell=ws['B2']
@@ -553,7 +585,7 @@ class makeSemesterFiles:
             # reverse the background for cells with content:
 
             whitefill=PatternFill(fill_type="solid", start_color="FFFFFF")
-            # readd gridline borders:
+            # re-add gridline borders:
 
             gridline_border = Border(
                 left=Side(border_style="thin", color="DDDDDD"),
@@ -614,7 +646,7 @@ def unpacktheasset_into_makefilesclass(theasset):
         # make csvs for every school
         schoolobject.makecsvfiles()
 
-# unpacktheasset_into_makefilesclass(theasset=theasset)
+unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 
