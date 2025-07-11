@@ -331,11 +331,12 @@ class makeSemesterFiles:
 
             headingsfonts=Font(size=18,bold=True)
             subheadingsfont=Font(size=16,bold=True)
-            utnamefont=Font(size=20, color='FFBF5701', name='Georgia',bold=True)
+            utnamefont=Font(size=19, color='FFBF5701', name='Georgia', bold=True)
             # update later
             semesterfont=Font(bold=True,size=16)
 
-            datafont=Font(size=15,name='Helvetica',underline='single')
+            # applied to the actual semester data. 
+            datafont=Font(size=15,name='Helvetica')
 
 
             leftalign=Alignment(horizontal='left')
@@ -372,11 +373,12 @@ class makeSemesterFiles:
             ws.append(blankrow)
             
                         
-            thirdrow=['','Course Code','Course Name','Hours','Category','Upper/Lower Division']
-            ws.append(thirdrow)
+            subheadingrow=['','Course Code','Course Name','Hours','Category','Upper/Lower Division']
+            ws.append(subheadingrow)
             # now apply styles
             for cell in ws[5]:
                 cell.font=subheadingsfont
+                cell.alignment=leftalign
 
 
             # now the meat of the file, the data
@@ -391,7 +393,7 @@ class makeSemesterFiles:
                 # semester courses is a dictionary of its own as well
                 semestercourses=semesterdictionary[semester]
                 # that means the semester will be on the first row
-                excelobject.append([f'{semester}'])
+                excelobject.append([f'{semester}   '])
                 rowcount+=1
                 for coursenameindex in range(len(semestercourses)):
 
@@ -434,7 +436,8 @@ class makeSemesterFiles:
                     if col_index==1:
                         # use.font to assign the font I see
                         datacell.font=semesterfont
-                        datacell.alignment=centeralign
+                        datacell.alignment=Alignment(horizontal='right')
+
                     elif col_index in [2,3]:
                         datacell.font=datafont
                         datacell.alignment=leftalign
@@ -449,8 +452,7 @@ class makeSemesterFiles:
                        
 
 
-            print(f'Excel object for {degreename}:\n{excelobject}')
-            print(f'len excel object={len(excelobject)}')
+            print(f'len excel object={len(excelobject)}, ie number of datarows')
             
 
 # -----------------------------end data stuff --------------------------------------------------------
@@ -461,12 +463,12 @@ class makeSemesterFiles:
             for col_index, value in enumerate(totalhoursrow, start=1):
                 
                 # use.font to assign the font I see
-                cell=ws.cell(row=lastrowindex, column=col_index, value=value)
+                cell=ws.cell(row=lastrowindex+1, column=col_index, value=value)
                 # FF=full opacity 
                 cell.font=datafont
 
            
-            lastrow=['DegreeView','','','','','DegreeView']
+            lastrow=['DegreeView','','','','','degreeviewsite.com']
             lastrowindex+=2 # 6 rows before we start data stuff. Then rowcount is the amount of data. 
 
             for col_index, value in enumerate(lastrow, start=1):
@@ -474,9 +476,17 @@ class makeSemesterFiles:
                 # use.font to assign the font I see
                 lastcell=ws.cell(row=lastrowindex, column=col_index, value=value)
                 # FF=full opacity 
-                lastcell.font=Font(size=18, bold=True, color='FF005f76')
-                lastcell.alignment=Alignment(textRotation=161)
+                if col_index==6:
+                    lastcell.font=Font(name='Roboto',size=17, bold=True, color='000000')
+                    lastcell.alignment=Alignment(horizontal='left',vertical='bottom')
 
+                else:
+                        
+                    lastcell.font=Font(name='Barlow',size=23, bold=True, color='FF005f76')
+                    lastcell.alignment=Alignment(horizontal='left',vertical='bottom')
+
+                # one more cause now we wrote the actual last row there
+                ws.row_dimensions[lastrowindex+1].height = 50
 
 
 
@@ -499,18 +509,20 @@ class makeSemesterFiles:
                 # every cell has a .column_letter attribute
                 col_letter = firstcell.column_letter
                 col_index=column_index_from_string(col_letter)
-                # scale the width factor
+                # scale the width factor to make the columns wider
                 if col_index==7:  
                     # make the UT Austin column alot wider
                     ws.column_dimensions[col_letter].width = int(colwidth)*2
                 elif col_index==6:
-                    ws.column_dimensions[col_letter].width = int(colwidth)*1.4
+                    ws.column_dimensions[col_letter].width = int(colwidth)*1.5
                 elif col_index==5:
                     ws.column_dimensions[col_letter].width=int(colwidth)*.7
-
+                elif col_index==3:
+                    ws.column_dimensions[col_letter].width=int(colwidth)*2
+                   
                 # the semester column
                 elif col_index==2:
-                    ws.column_dimensions[col_letter].width=int(colwidth)*.7
+                    ws.column_dimensions[col_letter].width=int(colwidth)*1.26
             
 
                 else:
@@ -602,7 +614,7 @@ class makeSemesterFiles:
             
             degreeviewpath='/Users/shalevwiden/Downloads/Projects/degreeview'
             semesterworkbook.save(semeseter_excel_filename)
-            print(f'Saved workbook at {os.path.abspath(semeseter_excel_filename)}')
+            print(f'Saved workbook at {semeseter_excel_filename}')
 
 
 def make_mermaid_files(self):
@@ -644,7 +656,7 @@ def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
         # make csvs for every school
-        schoolobject.makecsvfiles()
+        schoolobject.make_excel_files()
 
 unpacktheasset_into_makefilesclass(theasset=theasset)
 

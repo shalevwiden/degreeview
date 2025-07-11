@@ -189,7 +189,7 @@ def getallcourses_splitbysemester(suggcourse_link):
                 coursename=tds[0]
 
                         
-                if '(' in coursename:
+                if '(' in coursename.get_text():
             
                     coursename_and_type=coursename.get_text().split('(')
                     # only keep the first bit of the sentence, the useful info
@@ -259,18 +259,18 @@ if __name__=="__main__":
     econdict=getallcourses_splitbysemester(suggcourse_link=economicslink)
     print(f'\nEcondict\n\n{econdict}\n\n')
     for currentsemester in econdict:
-        print(f'Sem:{currentsemester}:\n{econdict[currentsemester]}')
+        print(f'Sem:{currentsemester}:\n{econdict[currentsemester]}\n')
         print(f'len of {currentsemester}: {len(econdict[currentsemester])}')
 
 
-    print('Geophysics stuff')
+    # print('Geophysics stuff')
 
-    geolink='https://catalog.utexas.edu/undergraduate/geosciences/degrees-and-programs/bs-geological-sciences/sugg-geophysics-bsgeosci/'
-    geo_dict=getallcourses_splitbysemester(suggcourse_link=geolink)
-    print(f'\nEcondict\n\n{geo_dict}\n\n')
-    for currentsemester in geo_dict:
-        print(f'Sem:{currentsemester}:\n{geo_dict[currentsemester]}')
-        print(f'len of {currentsemester}: {len(geo_dict[currentsemester])}')
+    # geolink='https://catalog.utexas.edu/undergraduate/geosciences/degrees-and-programs/bs-geological-sciences/sugg-geophysics-bsgeosci/'
+    # geo_dict=getallcourses_splitbysemester(suggcourse_link=geolink)
+    # print(f'\nGeodict\n\n{geo_dict}\n\n')
+    # for currentsemester in geo_dict:
+    #     print(f'Sem:{currentsemester}:\n{geo_dict[currentsemester]}')
+    #     print(f'len of {currentsemester}: {len(geo_dict[currentsemester])}')
 
 
 
