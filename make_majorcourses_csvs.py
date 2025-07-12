@@ -210,4 +210,18 @@ def makemajorcoursesexcelfiles(schooldata):
 def makemajoronly_mmdfiles(schooldata):
     ''' use a similar approach to makemajoronly csvs
     in that I can use that biglist'''
-    pass
+    
+    schoolname=schooldata[list(schooldata)[0]]
+    schooldir=schoolname
+    degreeviewfolder='/Users/shalevwiden/Downloads/Projects/degreeview'
+
+    print(schoolname)
+    listoffolders=os.listdir(degreeviewfolder)
+    print(f'list of folders is {listoffolders}')
+
+    # the [0] gets the first and only element
+    schoolfolder=os.path.join(degreeviewfolder,schooldir)
+    diagramcode='''
+mindmap
+root
+'''

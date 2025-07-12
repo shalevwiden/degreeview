@@ -36,3 +36,7 @@ Create both horizontal AND vertical fuk it.
 ### Excel Files creation with OpenPyXL
 
 - Created responsive data creation, including a responsive border that goes around all data.
+
+### Mermaid Creation and Mermaid CLI
+
+- Used mmd.js and the mermaid CLI to create mermaid files and then used subprocess to save them to specified file locations.

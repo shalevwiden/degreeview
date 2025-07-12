@@ -51,7 +51,7 @@ def makecsv(schooldata):
             value=schooldata[key]
             writer.writerow([key,value])
         writer.writerow(['',''])
-        writer.writerow(['degreeview'])
+        writer.writerow(['DegreeView'])
 
 
 
@@ -111,7 +111,8 @@ def unpack_the_asset_into_csvs(the_asset):
 # gotta bust out the delete files script. 
 
 # every time I run this file(makecsvs.py) it makes new csvs because of this line. 
-unpack_the_asset_into_csvs(the_asset=theasset)
+# ---------------------------------------------------------------------------------------------------------------------
+# unpack_the_asset_into_csvs(the_asset=theasset)
 print('Unpacked')
 
 # import the function I made in the adjacent file

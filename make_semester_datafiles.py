@@ -62,8 +62,20 @@ class makeSemesterFiles:
         self.degreeviewfolderpath='/Users/shalevwiden/Downloads/Projects/degreeview'
         # this should work. If not I need to find a mystery
         self.schoolfilepath=os.path.join(self.degreeviewfolderpath,self.schoolname)
+        
+        self.schoolcolordict={'School of Architecture':'#cdbee9', 'Red McCombs School of Business':'#f9e4af', 
+ 'School of Civic Leadership':'#096c6c', 'Moody College of Communication':'#7e0107',
+   'College of Education':'#86dff5', 'Cockrell School of Engineering':'#e35501', 
+   'College of Fine Arts':"#633224", 'John A. and Katherine G. Jackson School of Geosciences':'#a3d29c', 
+   'School of Information':'#2bc5e0', 
+ 'College of Liberal Arts':'#f3f3f3', 'College of Natural Sciences':'#f6c44b', 'School of Nursing':'#e3971f',
+  'College of Pharmacy':"#BAB86C", 'Lyndon B. Johnson School of Public Affairs':'#096c6c', 'Steve Hicks School of Social Work':'#f0b420'}
+        
+        self.schoolcolor=self.schoolcolordict[self.schoolname]
 
-
+    def __str__(self):
+        returnstring=f'This is an object to create files for {self.schoolname}'
+        return returnstring
    
     def makecsvfiles(self):
         '''
@@ -621,7 +633,10 @@ def make_mermaid_files(self):
         pass
 
 
-
+def getcoursestats():
+    pass
+def make_mpl_graphs():
+    pass
 
 
 
