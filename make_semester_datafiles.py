@@ -542,32 +542,33 @@ class makeSemesterFiles:
             # can change this quite easily
             # theres spaces which isnt great. But theres also spaces in the degreename. 
             mermaid_file_path=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.mmd')
-            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.pdf')
+            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.svg')
             
 
             totalhours=0
             numberofsemesters=len(semesterdictionary)
-
-            diagramcode = f'''
-graph TD
-    '''
-            
+            diagramcode = '''
+        graph TD
+            '''
             # top down graph
             # layout stuff? fixed, automatic. 
 
         # flowchart:
             # curve: basis
 
-            hexpicker="#F8EB5D"
+            hexpicker="#cf840c"
+            
 
             # establish classes
             title_class_name='title_class'
-            title_class='   \n  classDef title_class fill:#f96,stroke:#fff,color:#FFF,font-size:22px,font-weight:bold;'
+            title_class='   \n  classDef title_class fill:#0f4162,stroke:#8fa1ff,color:#fff,font-size:26px,font-weight:bold;'
             diagramcode+=title_class
 
             major_cat_class_name='major_cat_class'
-            major_cat_class='   \nclassDef major_cat_class  fill:#114CB2, stroke:#fff,color:#FFF,font-weight:bold' #stroke is border.
+            major_cat_class='   \nclassDef major_cat_class fill: #1d79db, stroke:#fff,color:#FFF,font-weight:bold,rx:20,ry:20' 
+            #stroke is border.
             diagramcode+=major_cat_class
+
             core_cat_class_name='core_cat_class'
             core_cat_class='    \nclassDef core_cat_class  fill:#BF5706, stroke:#fff,color:#FFF,font-weight:bold;'
             diagramcode+=core_cat_class
@@ -578,20 +579,20 @@ graph TD
 
 
             elective_cat_class_name="elective_cat_class"
-            elective_cat_class='    \nclassDef elective_cat_class  color:#FFF,font-weight:bold,fill:#c75052, stroke:#fff;'
+            elective_cat_class='    \nclassDef elective_cat_class  color:#FFF,font-weight:bold,fill:#579d42, stroke:#fff;'
             diagramcode+=elective_cat_class
 
             gened_cat_class_name='gened_cat_class'
-            gened_cat_class='    \nclassDef gened_cat_class color:#FFF,font-weight:bold,fill:#5067c7, stroke:#fff;'
+            gened_cat_class='    \nclassDef gened_cat_class color:#FFF,font-weight:bold,fill:#ae6455, stroke:#fff;'
             diagramcode+=gened_cat_class
 
 
             opportunity_cat_class_name='opportunity_cat_class'
-            opportunity_cat_class='    \nclassDef opportunity_cat_class color:#F8EB5D,font-weight:bold,fill:#5067c7, stroke:#fff;'
+            opportunity_cat_class='    \nclassDef opportunity_cat_class color:#FFF,font-weight:bold,fill:#f2bb16, stroke:#fff;'
             diagramcode+=opportunity_cat_class
 
             other_class_name='other_class'
-            other_class= '  \nclassDef other_class color:#FFF,font-weight:bold,fill:#5067c7, stroke:#fff;'
+            other_class= '  \nclassDef other_class color:#FFF,font-weight:bold,fill:#9cadb7, stroke:#fff;'
             diagramcode+=other_class
             # 
 
@@ -642,20 +643,20 @@ graph TD
 
                         # and give them classes. 
                         if 'major' in coursecategory.lower():
-                            diagramcode+=f'\n{nodename}(["{coursecode}"])\n'
+                            diagramcode+=f'\n{nodename}("{coursecode}")\n'
 
                             # define the class in the mmd file
 
                             diagramcode+=f'\nclass {nodename} {major_cat_class_name}\n'
                             
 
-                        elif 'core' in coursecategory.lower() and 'major' not in coursecategory.lower():
-                            diagramcode+=f'{nodename}("{coursecode}")\n'
+                        elif 'core' in coursecategory.lower() and "major" not in coursecategory.lower():
+                            diagramcode+=f'{nodename}(["{coursecode}"])\n'
 
                             diagramcode+=f'class {nodename} {core_cat_class_name}\n'
 
                         elif 'general education' in coursecategory.lower():
-                            diagramcode+=f'{nodename}[/{coursecode}\]\n'
+                            diagramcode+=f'{nodename}["{coursecode}"]\n'
                             diagramcode+=f'class {nodename} {gened_cat_class_name}\n'
 
 
@@ -686,27 +687,27 @@ graph TD
                         listofcourses=semestercourses[coursename]
                         for i in range(len(listofcourses)):
                             coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-
                             # this works cause even if list is 1 in length itll still add
                             nodename=f'course{courseinsemestercount}semester{semesternum}'
                             courseinsemestercount+=1
+                            
 
                             # coursename is an empty string so use coursename here
                             if 'major' in coursecategory.lower():
-                                diagramcode+=f'\n{nodename}(["{coursename}"])\n'
+                                diagramcode+=f'\n{nodename}("{coursename}")\n'
 
-                                # define the class in the mmd file
+                            # define the class in the mmd file
 
                                 diagramcode+=f'\nclass {nodename} {major_cat_class_name}\n'
                             
 
-                            elif 'core' in coursecategory.lower():
-                                diagramcode+=f'{nodename}("{coursename}")\n'
+                            elif 'core' in coursecategory.lower() and "major" not in coursecategory.lower():
+                                diagramcode+=f'{nodename}(["{coursename}"])\n'
 
                                 diagramcode+=f'class {nodename} {core_cat_class_name}\n'
 
                             elif 'general education' in coursecategory.lower():
-                                diagramcode+=f'{nodename}[/"{coursename}"\]\n'
+                                diagramcode+=f'{nodename}["{coursename}"]\n'
                                 diagramcode+=f'class {nodename} {gened_cat_class_name}\n'
 
 
@@ -721,10 +722,10 @@ graph TD
                                 diagramcode+=f'{nodename}>"{coursename}"]\n'
                                 diagramcode+=f'class {nodename} {opportunity_cat_class_name}\n'
 
-
                             else:
-                                diagramcode+=f'{nodename}["{coursename}"]\n'
+                                diagramcode+=f'{nodename}[{coursename}]\n'
                                 diagramcode+=f'class {nodename} {other_class_name}\n'
+
 
 
 
@@ -765,32 +766,28 @@ graph TD
                         diagramcode+=f'course7semester{semesternum}\n'
 
 
-            
+                    
 
 
 
 
                 diagramcode+='\nend'
                 diagramcode+='\n'
-                print(f'in {semester} there were {courseinsemestercount} courses')
-                print(f'Arrowcount is {arrowcount}')
             # now connect the semesters:
             
             # see which semesters are on which sides
             firsthalf=numberofsemesters//2
             secondhalf=(numberofsemesters//2+firsthalf) if numberofsemesters%2==0 else ((numberofsemesters//2)+1)+firsthalf
-            
-
-            # this should be good now. 
-            titlenode=f'\ntitlenode("{degreename} Semester Diagram")\n'
+            # change this 
+            titlenode=f'\ntitlenode("{degreename} Semester Layout")\n'
             diagramcode+=titlenode
             diagramcode+=f'class titlenode {title_class_name}\n'
 
 
-            diagramcode+=f'titlenode==>semester1\n'    
+            diagramcode+=f'titlenode===>semester1\n'    
             # this should be respoonsive based on semester lengths
 
-            diagramcode+=f'titlenode==>semester{secondhalf+1-firsthalf}\n'
+            diagramcode+=f'titlenode===>semester{secondhalf+1-firsthalf}\n'
 
             # make all arrows hidden except for the semester arrows...
             for arrowcount in range(arrowcount+2):
@@ -804,7 +801,6 @@ graph TD
 
             for semesternum in range(1,firsthalf+1):
                 # changeline styles here 
-                print(f'first half: {semesternum}')
                 # for readability
                 if semesternum==(firsthalf+1)-1:
                     firsthalfconnected+=f'semester{semesternum}=====>legend\n'
@@ -814,13 +810,11 @@ graph TD
 
             diagramcode+='%% firsthalfconnected:\n'
             diagramcode+=firsthalfconnected
-            print(f'firsthalfconnected:{firsthalfconnected}')
 
 
             secondhalfconnected='\n '
 
             for semesternum in range(firsthalf+1,secondhalf+1):
-                print(f'second half:{semesternum}')
 
                 # changeline styles here 
 
@@ -833,12 +827,11 @@ graph TD
             diagramcode+='%% secondhalfconnected:'
 
             diagramcode+=secondhalfconnected+'\n'
-            print(f'secondhalfconnected:{secondhalfconnected}')
 
             # now hide the connecting to legend arrows:
             diagramcode+='%% Hide the connecting to legend arrows.\n'
 
-            # this works...for some reason. Removes the arrows connecting to the legend. 
+            # this works...for some reason
             diagramcode+=f'linkStyle {arrowcount+firsthalf} stroke:transparent,fill:transparent\n'
             diagramcode+=f'linkStyle {arrowcount+keeparrowcount+2} stroke:transparent,fill:transparent\n'
 
@@ -846,11 +839,11 @@ graph TD
             # legend and stats node
             # this one will be all flat on the bottom. 
             diagramcode+=f'    \n\nsubgraph legend["Course Legend"]\n'
-                    
+            
             diagramcode+=f'''
-        majornode(["Major Category Courses"])\n
-        corenode("Core Category Courses")\n
-        genednode[/"General Education Category Courses"\]\n
+        majornode("Major Category Courses")\n
+        corenode(["Core Category Courses"])\n
+        genednode["General Education Category Courses"]\n
         electivenode{{{{"Elective Category Courses"}}}}\n
         opportunitynode>"Opportunity Category Courses"]\n
         othernode["Other/Unspecified"]\n
@@ -865,29 +858,38 @@ graph TD
             diagramcode+=f'\n class opportunitynode {opportunity_cat_class_name}\n'
             diagramcode+=f'\n class othernode {other_class_name}'
 
- 
+
+            
+
+
+
+
+
+
 
 
         # --------------Now actually building the file and saving it -------------------------------------------------
             # replace this with the path to the schoolfolder in the right file
+            mermaid_file_path=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.mmd')
+            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.svg')
 
-            # redefine it here why not so we can see
-            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.pdf')
-
-
+            
             with open(mermaid_file_path, "w") as mermaidsemesterfile:
                 mermaidsemesterfile.write(diagramcode)
 
 
+            themepath=os.path.abspath('darktheme.json')
 
-            # add config file later. From config folder. Theme parameter. 
+            lightthemeconfig="/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mermaid_config_files/light_congif_file.json"
 
-            def rendermmd(createdpath,savepath):
-                subprocess.run(["mmdc", "-i", createdpath, "-o", savepath])
-            rendermmd(createdpath=mermaid_file_path,savepath=mermaid_savefilepath)
+
+            def rendermmd(createdpath,savepath,configpath):
+                subprocess.run(["mmdc", "-i", createdpath, "-o", savepath,"--configFile",configpath])
+
+            rendermmd(createdpath=mermaid_file_path,savepath=mermaid_savefilepath,configpath=lightthemeconfig)
 
             print(f'Created {mermaid_file_path} and saved it at {mermaid_savefilepath}')
-            return 0
+            print(f'degreename is {degreename}')
             
 
     def stylepdfs(self):
@@ -926,15 +928,15 @@ print('Testing:\nArchitecture School Name')
 
 print(getattr(architecturefiles,'schoolname'))
 
-architecturefiles.make_mermaid_files()
+# architecturefiles.make_mermaid_files()
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
         # make csvs for every school
-        # schoolobject.make_excel_files()
+        schoolobject.make_excel_files()
 
-# unpacktheasset_into_makefilesclass(theasset=theasset)
+unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 
