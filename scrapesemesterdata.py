@@ -78,7 +78,7 @@ def getallcourses_splitbysemester(suggcourse_link):
                     coursename=coursename_and_type[0].strip()
 
                     coursetype=coursename_and_type[-1].split(')')[0]
-                    coursetype=f'({coursetype})'
+                    coursetype=f'{coursetype}'
 
                 else:
                     coursename=coursename.strip()
@@ -195,7 +195,7 @@ def getallcourses_splitbysemester(suggcourse_link):
                     # only keep the first bit of the sentence, the useful info
                     coursename=coursename_and_type[0].strip()
                     coursetype=coursename_and_type[1].split(')')[0]
-                    coursetype=f'({coursetype})'
+                    coursetype=f'{coursetype}'
                 else:
                     coursename=coursename.get_text().strip()
                     coursetype=''

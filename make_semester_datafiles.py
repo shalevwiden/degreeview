@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 
 import sys
 import os
+import subprocess
+import random
 
 import csv
 import openpyxl
@@ -33,7 +35,7 @@ if __name__=='__main__':
     print(f'\nthe python version being used is:{sys.executable}\n')
 
 
-# this script is gonna be.. huge
+# this script is gonna be.. huge. Yeah this is the behemoth one
 # the asset is a LIST of dictionaries
 from theassetcontainment import theasset
 
@@ -176,120 +178,6 @@ class makeSemesterFiles:
         print(f'Made a semestercsv for {degreename}:\n As {semestercsvfilename}')
 #-----------------------------------------------------------------------------------
 
-    def make_horizontal_csvfiles(self):
-         '''for each degree in school data make a csv thats horizontal with 4 semesters on each side.'''
-
-         ''' Only works for degrees with 8 semesters. 
-         
-         Just test this with say archdata and see if it works
-         '''
-         for i in range(1,len(self.schooldata)):
-            
-            key=list(self.schooldata)[i]
-            degreename=key
-            degreename=degreename.replace('/','-').strip()
-            print(f'Starting process for {degreename} ')
-            
-            # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[key]
-
-            
-            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
-            # now use this to write to csv files.
-            # I can actually finish this fast
-            
-            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
-            # can change this quite easily
-            semestercsvfilename=os.path.join(degreefolderpath,f'{degreename} semestercsvfile.csv')
-
-            totalhours=0
-            numberofsemesters=len(semesterdictionary)
-            csvobjectdict={}                        
-            print(f'csv object has been rest to {len(csvobjectdict)}\n\n\n\n\n\n\n')
-            '''
-            Use this rowcount way to then go back and use the same indexes for the horizontal side is the thing haha. 
-            '''
-            rowcount=0
-            if numberofsemesters==8:
-                # dont forget to put the w
-                with open(semestercsvfilename,'w',newline='') as semestercsvfile:
-
-                    # .write stuff now mf
-                    # split up sems 1-4 and 5-8 lol
-                    writer=csv.writer(semestercsvfile)
-                    writer.writerow([f'{degreename}',"","",f'{self.schoolname}',"The University of Texas at Austin"])
-                    writer.writerow(['','','','',''])
-                    # due to the complex nature of the rows this needs a csv object
-                    # this actually wont be necessary in excel. 
-                    writer.writerow(['','Course Code','Course Name','Hours','Category','Upper/Lower Division','','','','','','','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
-                    
-                    
-                    for semesternum in range(numberofsemesters):
-                        semester=list(semesterdictionary)[semesternum]
-                        # semester courses is a dictionary of its own as well
-                        semestercourses=semesterdictionary[semester]
-                        
-                        csvobjectdict[rowcount]=[f'{semester}']
-                        rowcount+=1
-                        for coursenameindex in range(len(semestercourses)):
-
-                            coursename=list(semestercourses)[coursenameindex]
-                            # if its NOT a list of lists:
-                            if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-                                coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                                csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
-                                rowcount+=1
-                                totalhours+=int(coursehours)
-                            
-                            else:
-                                listofcourses=semestercourses[coursename]
-                                for i in range(len(listofcourses)):
-                                    coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                                    csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
-                                    rowcount+=1
-
-
-                        # line between semesters
-                        csvobjectdict[rowcount]=['','','','','']
-                        rowcount+=1
-
-
-                        # all of this is more to the right. 
-                        # for semesternum in range(5,9):
-                        #     # now use addnum to append, and see if this works...
-                        #     addnum=semesternum=5
-                        #     # well lets do that, csvobjectdict of semesternum+1
-                        #     csvobjectdict[].append(['','','','','',f'{semester} MARKER'])
-                        #     for coursenameindex in range(len(semestercourses)):
-
-                        #         coursename=list(semestercourses)[coursenameindex]
-                        #         # if its NOT a list of lists:
-                        #         if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-                        #             coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                        #             csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
-                        #             totalhours+=int(coursehours)
-                                
-                        #         else:
-                        #             listofcourses=semestercourses[coursename]
-                        #             for i in range(len(listofcourses)):
-
-                        #                 coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                        #                 csvobjectdict.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
-
-
-                        #     csvobjectdict.append(['','','','',''])
-
-
-
-
-                    print(f'len csv object={len(csvobjectdict)}')
-                    for row in csvobjectdict:
-                        writer.writerow(csvobjectdict[row])
-
-                    writer.writerow(['','','',f'Total Hours: {totalhours}','',''])
-                    writer.writerow(['DegreeView','','','',''])
-
-                    # this is for those giant architecture majors and some engineering that take like 6 years
         
     def make_excel_files(self):
         '''
@@ -628,15 +516,388 @@ class makeSemesterFiles:
             semesterworkbook.save(semeseter_excel_filename)
             print(f'Saved workbook at {semeseter_excel_filename}')
 
+    def makehorizontalexcelfiles(self):
+        '''Maybe do this later. With Excel it shouldnt be toooo hard'''
+    pass
+    def make_mermaid_files(self):
 
-def make_mermaid_files(self):
+# we start at 1 because 0 is the school name 
+        for i in range(1,len(self.schooldata)):
+                    
+            key=list(self.schooldata)[i]
+            degreename=key
+            degreename=degreename.replace('/','-').strip()
+
+            print(f'Starting process for {degreename} mermaid file')
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[key]
+
+            
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            # now use this to write to csv files.
+            # I can actually finish this fast
+            
+            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
+            # can change this quite easily
+            # theres spaces which isnt great. But theres also spaces in the degreename. 
+            mermaid_file_path=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.mmd')
+            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.pdf')
+            
+
+            totalhours=0
+            numberofsemesters=len(semesterdictionary)
+
+            diagramcode = f'''
+graph TD
+    '''
+            
+            # top down graph
+            # layout stuff? fixed, automatic. 
+
+        # flowchart:
+            # curve: basis
+
+            hexpicker="#F8EB5D"
+
+            # establish classes
+            title_class_name='title_class'
+            title_class='   \n  classDef title_class fill:#f96,stroke:#fff,color:#FFF,font-size:22px,font-weight:bold;'
+            diagramcode+=title_class
+
+            major_cat_class_name='major_cat_class'
+            major_cat_class='   \nclassDef major_cat_class  fill:#114CB2, stroke:#fff,color:#FFF,font-weight:bold' #stroke is border.
+            diagramcode+=major_cat_class
+            core_cat_class_name='core_cat_class'
+            core_cat_class='    \nclassDef core_cat_class  fill:#BF5706, stroke:#fff,color:#FFF,font-weight:bold;'
+            diagramcode+=core_cat_class
+
+            # I can manually make this bigger with spaces
+
+            more_than_3_class='     \nclassDef more_than_3_class  fill:#f96, color:#FFF,font-weight:bold,stroke:#fff;'
+
+
+            elective_cat_class_name="elective_cat_class"
+            elective_cat_class='    \nclassDef elective_cat_class  color:#FFF,font-weight:bold,fill:#c75052, stroke:#fff;'
+            diagramcode+=elective_cat_class
+
+            gened_cat_class_name='gened_cat_class'
+            gened_cat_class='    \nclassDef gened_cat_class color:#FFF,font-weight:bold,fill:#5067c7, stroke:#fff;'
+            diagramcode+=gened_cat_class
+
+
+            opportunity_cat_class_name='opportunity_cat_class'
+            opportunity_cat_class='    \nclassDef opportunity_cat_class color:#F8EB5D,font-weight:bold,fill:#5067c7, stroke:#fff;'
+            diagramcode+=opportunity_cat_class
+
+            other_class_name='other_class'
+            other_class= '  \nclassDef other_class color:#FFF,font-weight:bold,fill:#5067c7, stroke:#fff;'
+            diagramcode+=other_class
+            # 
+
+        # at the end add everything connection. For now I define the subgraph. I'll be able to set arrow styles and such too.
+
+            # use coursecount to make stuff invisible
+            coursecount=0
+            totalhours=0
+            arrowcount=0
+            # for each semester
+            # do 1 and then +1 why?
+            for semesternum in range(numberofsemesters):
+                semester=list(semesterdictionary)[semesternum]
+                semestercourses=semesterdictionary[semester]
+
+                # the subgraph will have the text 1st semester, 2nd semester, etc but names semester1, semester2, etc
+                diagramcode+=f'    \n\nsubgraph semester{semesternum+1}[{semester}]\n'
+
+                
+            
+                
+                # this is looping through the courses PER semester
+                keeparrowlist=[]
+                keeparrowlist=[item+2 for item in keeparrowlist]
+
+                courseinsemestercount=0
+                for coursenameindex in range(len(semestercourses)):
+
+                    coursename=list(semestercourses)[coursenameindex]
+                    # node name must be unique
+                    nodename=f'course{courseinsemestercount}semester{semesternum}' #keep in mind its 0 indexed
+
+                    # this is like course1semester1
+
+                    # if its NOT a list of lists:
+                    if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
+                        coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
+
+                        # adding to mermaid logic--------------
+
+
+
+                        # now set the brackets based on category. Square, round, rounded, triangle, etc. 
+                        # change all the shape types later and add more to the classes as well.
+
+                        # CSS is a walk in the park compared to this...god
+
+
+                        # and give them classes. 
+                        if 'major' in coursecategory.lower():
+                            diagramcode+=f'\n{nodename}(["{coursecode}"])\n'
+
+                            # define the class in the mmd file
+
+                            diagramcode+=f'\nclass {nodename} {major_cat_class_name}\n'
+                            
+
+                        elif 'core' in coursecategory.lower() and 'major' not in coursecategory.lower():
+                            diagramcode+=f'{nodename}("{coursecode}")\n'
+
+                            diagramcode+=f'class {nodename} {core_cat_class_name}\n'
+
+                        elif 'general education' in coursecategory.lower():
+                            diagramcode+=f'{nodename}[/{coursecode}\]\n'
+                            diagramcode+=f'class {nodename} {gened_cat_class_name}\n'
+
+
+
+                        elif 'elective' in coursecategory.lower():
+                            diagramcode+=f'{nodename}{{{{"{coursecode}"}}}}\n'
+
+                            diagramcode+=f'class {nodename} {elective_cat_class_name}\n'
+
+
+                        elif 'opportunity' in coursecategory.lower():
+                            diagramcode+=f'{nodename}>"{coursecode}"]\n'
+                            diagramcode+=f'class {nodename} {opportunity_cat_class_name}\n'
+
+                        else:
+                            diagramcode+=f'{nodename}[{coursecode}]\n'
+                            diagramcode+=f'class {nodename} {other_class_name}\n'
+
+
+
+                        # ----------------------------------------------------------
+                        courseinsemestercount+=1
+                        if coursehours!='':
+                            totalhours+=int(coursehours)
+
+                    
+                    else:
+                        listofcourses=semestercourses[coursename]
+                        for i in range(len(listofcourses)):
+                            coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+
+                            # this works cause even if list is 1 in length itll still add
+                            nodename=f'course{courseinsemestercount}semester{semesternum}'
+                            courseinsemestercount+=1
+
+                            # coursename is an empty string so use coursename here
+                            if 'major' in coursecategory.lower():
+                                diagramcode+=f'\n{nodename}(["{coursename}"])\n'
+
+                                # define the class in the mmd file
+
+                                diagramcode+=f'\nclass {nodename} {major_cat_class_name}\n'
+                            
+
+                            elif 'core' in coursecategory.lower():
+                                diagramcode+=f'{nodename}("{coursename}")\n'
+
+                                diagramcode+=f'class {nodename} {core_cat_class_name}\n'
+
+                            elif 'general education' in coursecategory.lower():
+                                diagramcode+=f'{nodename}[/"{coursename}"\]\n'
+                                diagramcode+=f'class {nodename} {gened_cat_class_name}\n'
+
+
+
+                            elif 'elective' in coursecategory.lower():
+                                diagramcode+=f'{nodename}{{{{"{coursename}"}}}}\n'
+
+                                diagramcode+=f'class {nodename} {elective_cat_class_name}\n'
+
+
+                            elif 'opportunity' in coursecategory.lower():
+                                diagramcode+=f'{nodename}>"{coursename}"]\n'
+                                diagramcode+=f'class {nodename} {opportunity_cat_class_name}\n'
+
+
+                            else:
+                                diagramcode+=f'{nodename}["{coursename}"]\n'
+                                diagramcode+=f'class {nodename} {other_class_name}\n'
+
+
+
+                            if coursehours!='':
+                                totalhours+=int(coursehours)
+                    coursecount+=courseinsemestercount
+                # dealing with in subgraph stuff
+
+                arrowmarker='---'
+                if courseinsemestercount==4:
+                    diagramcode+=f'course0semester{semesternum}{arrowmarker}course1semester{semesternum}\n'
+                    diagramcode+=f'course2semester{semesternum}{arrowmarker}course3semester{semesternum}\n'
+                    arrowcount+=2
+
+                elif courseinsemestercount==5:
+                    leftorright='left' if random.randint(0,1)==0 else 'right'
+                    if leftorright=='left':
+                        diagramcode+=f'course0semester{semesternum}{arrowmarker}course1semester{semesternum}{arrowmarker}course2semester{semesternum}\n'
+                        diagramcode+=f'course3semester{semesternum}{arrowmarker}course4semester{semesternum}\n'
+                        arrowcount+=3
+
+                    else:
+                        diagramcode+=f'course0semester{semesternum}{arrowmarker}course1semester{semesternum}\n'
+                        diagramcode+=f'course2semester{semesternum}{arrowmarker}course3semester{semesternum}{arrowmarker}course4semester{semesternum}\n'
+                        arrowcount+=3
+
+                elif courseinsemestercount>=6:
+                    diagramcode+=f'course0semester{semesternum}{arrowmarker}course1semester{semesternum}{arrowmarker}course2semester{semesternum}\n'
+                    diagramcode+=f'course3semester{semesternum}{arrowmarker}course4semester{semesternum}{arrowmarker}course5semester{semesternum}\n'
+                    arrowcount+=4
+
+                    if courseinsemestercount==7:
+                        diagramcode+=f'course6semester{semesternum}\n'
+
+
+                    elif courseinsemestercount==8:
+                        diagramcode+=f'course6semester{semesternum}\n'
+                        diagramcode+=f'course7semester{semesternum}\n'
+
+
+            
+
+
+
+
+                diagramcode+='\nend'
+                diagramcode+='\n'
+                print(f'in {semester} there were {courseinsemestercount} courses')
+                print(f'Arrowcount is {arrowcount}')
+            # now connect the semesters:
+            
+            # see which semesters are on which sides
+            firsthalf=numberofsemesters//2
+            secondhalf=(numberofsemesters//2+firsthalf) if numberofsemesters%2==0 else ((numberofsemesters//2)+1)+firsthalf
+            
+
+            # this should be good now. 
+            titlenode=f'\ntitlenode("{degreename} Semester Diagram")\n'
+            diagramcode+=titlenode
+            diagramcode+=f'class titlenode {title_class_name}\n'
+
+
+            diagramcode+=f'titlenode==>semester1\n'    
+            # this should be respoonsive based on semester lengths
+
+            diagramcode+=f'titlenode==>semester{secondhalf+1-firsthalf}\n'
+
+            # make all arrows hidden except for the semester arrows...
+            for arrowcount in range(arrowcount+2):
+                diagramcode+=f'linkStyle {arrowcount} stroke:transparent,fill:transparent\n'
+
+            
+            # split up the halves        
+            # 
+            firsthalfconnected='\n  '
+            keeparrowcount=0
+
+            for semesternum in range(1,firsthalf+1):
+                # changeline styles here 
+                print(f'first half: {semesternum}')
+                # for readability
+                if semesternum==(firsthalf+1)-1:
+                    firsthalfconnected+=f'semester{semesternum}=====>legend\n'
+                else:
+                    firsthalfconnected+=f'semester{semesternum}====>'
+                    keeparrowcount+=1
+
+            diagramcode+='%% firsthalfconnected:\n'
+            diagramcode+=firsthalfconnected
+            print(f'firsthalfconnected:{firsthalfconnected}')
+
+
+            secondhalfconnected='\n '
+
+            for semesternum in range(firsthalf+1,secondhalf+1):
+                print(f'second half:{semesternum}')
+
+                # changeline styles here 
+
+                if semesternum==secondhalf+1-1:
+                    secondhalfconnected+=f'semester{semesternum}=====>legend\n'
+                else:
+                    secondhalfconnected+=f'semester{semesternum}====>'
+                    keeparrowcount+=1
+
+            diagramcode+='%% secondhalfconnected:'
+
+            diagramcode+=secondhalfconnected+'\n'
+            print(f'secondhalfconnected:{secondhalfconnected}')
+
+            # now hide the connecting to legend arrows:
+            diagramcode+='%% Hide the connecting to legend arrows.\n'
+
+            # this works...for some reason. Removes the arrows connecting to the legend. 
+            diagramcode+=f'linkStyle {arrowcount+firsthalf} stroke:transparent,fill:transparent\n'
+            diagramcode+=f'linkStyle {arrowcount+keeparrowcount+2} stroke:transparent,fill:transparent\n'
+
+
+            # legend and stats node
+            # this one will be all flat on the bottom. 
+            diagramcode+=f'    \n\nsubgraph legend["Course Legend"]\n'
+                    
+            diagramcode+=f'''
+        majornode(["Major Category Courses"])\n
+        corenode("Core Category Courses")\n
+        genednode[/"General Education Category Courses"\]\n
+        electivenode{{{{"Elective Category Courses"}}}}\n
+        opportunitynode>"Opportunity Category Courses"]\n
+        othernode["Other/Unspecified"]\n
+
+        '''    
+            diagramcode+='end\n'
+
+            diagramcode+=f'\nclass majornode {major_cat_class_name}\n'
+            diagramcode+=f'\nclass corenode {core_cat_class_name}\n'
+            diagramcode+=f'\nclass genednode {gened_cat_class_name}\n'
+            diagramcode+=f'\nclass electivenode {elective_cat_class_name}\n'
+            diagramcode+=f'\n class opportunitynode {opportunity_cat_class_name}\n'
+            diagramcode+=f'\n class othernode {other_class_name}'
+
+ 
+
+
+        # --------------Now actually building the file and saving it -------------------------------------------------
+            # replace this with the path to the schoolfolder in the right file
+
+            # redefine it here why not so we can see
+            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.pdf')
+
+
+            with open(mermaid_file_path, "w") as mermaidsemesterfile:
+                mermaidsemesterfile.write(diagramcode)
+
+
+
+            # add config file later. From config folder. Theme parameter. 
+
+            def rendermmd(createdpath,savepath):
+                subprocess.run(["mmdc", "-i", createdpath, "-o", savepath])
+            rendermmd(createdpath=mermaid_file_path,savepath=mermaid_savefilepath)
+
+            print(f'Created {mermaid_file_path} and saved it at {mermaid_savefilepath}')
+            return 0
+            
+
+    def stylepdfs(self):
         pass
 
-
-def getcoursestats():
-    pass
-def make_mpl_graphs():
-    pass
+    def getcoursestats():
+        pass
+    def make_mpl_graphs():
+        ''' Make some matplotlib graphs for each Degree as well'''
+        pass
 
 
 
@@ -665,15 +926,15 @@ print('Testing:\nArchitecture School Name')
 
 print(getattr(architecturefiles,'schoolname'))
 
-architecturefiles.make_excel_files()
+architecturefiles.make_mermaid_files()
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
         # make csvs for every school
-        schoolobject.make_excel_files()
+        # schoolobject.make_excel_files()
 
-unpacktheasset_into_makefilesclass(theasset=theasset)
+# unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 
