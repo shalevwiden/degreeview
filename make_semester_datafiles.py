@@ -261,6 +261,10 @@ class makeSemesterFiles:
 
                     headingcell.font=utnamefont
                     headingcell.border=headingborder
+                elif col_index==1:
+                    headingcell.font=headingsfonts
+                    headingcell.border=headingborder
+                    headingcell.alignment=centeralign
                 else:
                     headingcell.font=headingsfonts
                     headingcell.border=headingborder
@@ -359,6 +363,7 @@ class makeSemesterFiles:
             ws.append(blankrow)
             totalhoursrow=['','','',f'Total Hours: {totalhours}','','']
 
+            # this lastrow value is actually used for the last TWO rows
             lastrowindex=rowcount+6
             for col_index, value in enumerate(totalhoursrow, start=1):
                 
@@ -377,13 +382,13 @@ class makeSemesterFiles:
                 lastcell=ws.cell(row=lastrowindex, column=col_index, value=value)
                 # FF=full opacity 
                 if col_index==6:
-                    lastcell.font=Font(name='Roboto',size=17, bold=True, color='000000')
+                    lastcell.font=Font(name='Roboto',size=19, bold=True, color='000000')
                     lastcell.alignment=Alignment(horizontal='left',vertical='bottom')
 
                 else:
-                        
-                    lastcell.font=Font(name='Barlow',size=23, bold=True, color='FF005f76')
-                    lastcell.alignment=Alignment(horizontal='left',vertical='bottom')
+                    # logo cell
+                    lastcell.font=Font(name='Barlow',size=30, bold=True, color='0c48a5')
+                    lastcell.alignment=Alignment(horizontal='left',vertical='center')
 
                 # one more cause now we wrote the actual last row there
                 ws.row_dimensions[lastrowindex+1].height = 50
@@ -465,26 +470,7 @@ class makeSemesterFiles:
             max_col = column_index_from_string('G') 
 
             
-
-            
-            # this is the border that will go around everything
-            entire_ws_border=Side(style='thick',color='000000')
-            
-            for row_index, row in enumerate(rows, start=min_row):
-                for col_index, cell in enumerate(row, start=min_col):
-                    
-                    # remember we defined side. and you do Border(Side=style))
-                    '''
-                    This is the final peice of the puzzle that adds borders.
-                    If sides if empty, then
-                    cell.border = Border(), which defines no borders. Normally it will be entire_ws_border border preset. 
-                    '''
-                    cell.border = Border(
-                    top=entire_ws_border if row_index == min_row else None,
-                    bottom=entire_ws_border if row_index == max_row else None,
-                    left=entire_ws_border if col_index == min_col else None,
-                    right=entire_ws_border if col_index == max_col else None,
-                )
+            # where border code used to be
             
             # make the entire worksheet a color:
             backgroundcolor=PatternFill(fill_type="solid", start_color="F0F0F0") #end_color='0000FF' fill_type="gray125" or linear later
@@ -510,7 +496,41 @@ class makeSemesterFiles:
                 for cell in row:
                     cell.fill = whitefill
                     cell.border=gridline_border
+            
+            # this is the border that will go around everything.
+            # Use logic to only add border to the cells on the outside.
+            entire_ws_border=Side(style='thick',color='000000')
+            
+            for row_index, row in enumerate(rows, start=min_row):
+                for col_index, cell in enumerate(row, start=min_col):
+                    current = cell.border
+
                     
+                    # remember we defined side. and you do Border(Side=style))
+                    '''
+                    This is the final peice of the puzzle that adds borders.
+                    If sides if empty, then
+                    cell.border = Border(), which defines no borders. Normally it will be entire_ws_border border preset. 
+                    '''
+                    cell.border = Border(
+            top=entire_ws_border if row_index == min_row else current.top,
+            bottom=entire_ws_border if row_index == max_row else current.bottom,
+            left=entire_ws_border if col_index == min_col else current.left,
+            right=entire_ws_border if col_index == max_col else current.right
+        )
+
+            
+                    
+            for row in ws.iter_rows(min_row=6, max_row=6, min_col=3, max_col=7):
+                for cell in row:
+                    current = cell.border
+                    cell.border = Border(
+                        top=current.top,
+                        bottom=Side(style='medium'),  # Only change bottom keep thick border around everything
+                        left=current.left,
+                        right=current.right
+                    )
+
             
             degreeviewpath='/Users/shalevwiden/Downloads/Projects/degreeview'
             semesterworkbook.save(semeseter_excel_filename)
@@ -896,9 +916,14 @@ class makeSemesterFiles:
         pass
 
     def getcoursestats():
+        '''
+        Make txt files with this so I can easily read it and place it on the website. 
+        '''
         pass
     def make_mpl_graphs():
-        ''' Make some matplotlib graphs for each Degree as well'''
+        ''' Make some matplotlib graphs for each Degree as well.
+            For organization
+        '''
         pass
 
 
@@ -928,7 +953,7 @@ print('Testing:\nArchitecture School Name')
 
 print(getattr(architecturefiles,'schoolname'))
 
-# architecturefiles.make_mermaid_files()
+architecturefiles.make_excel_files()
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
@@ -936,7 +961,7 @@ def unpacktheasset_into_makefilesclass(theasset):
         # make csvs for every school
         schoolobject.make_excel_files()
 
-unpacktheasset_into_makefilesclass(theasset=theasset)
+# unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 
