@@ -12,6 +12,7 @@ import openpyxl
 
 
 
+
 from openpyxl import load_workbook
 from openpyxl import Workbook
 # use this to define the function define_start_column
@@ -25,6 +26,10 @@ import os
 
 from openpyxl.styles import Font
 from openpyxl.styles import Border, Side, Alignment
+
+# for working with pdfs:
+import cairosvg
+from cairosvg import svg2pdf
 
 # good to check everythings working with the venv:
 if __name__=='__main__':
@@ -543,7 +548,10 @@ class makeSemesterFiles:
 
 # we start at 1 because 0 is the school name 
         for i in range(1,len(self.schooldata)):
-                    
+
+        # in this entire folder we are doing things by degree.
+
+
             key=list(self.schooldata)[i]
             degreename=key
             degreename=degreename.replace('/','-').strip()
@@ -561,8 +569,13 @@ class makeSemesterFiles:
             degreefolderpath=os.path.join(self.schoolfilepath,degreename)
             # can change this quite easily
             # theres spaces which isnt great. But theres also spaces in the degreename. 
-            mermaid_file_path=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.mmd')
-            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.svg')
+
+            new_diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
+            if not os.path.exists(new_diagram_folder):
+                os.mkdir(new_diagram_folder)
+
+            mermaid_file_path=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.mmd')
+            mermaid_savefilepath=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.svg')
             
 
             totalhours=0
@@ -581,38 +594,40 @@ class makeSemesterFiles:
 
             # establish classes
             title_class_name='title_class'
-            title_class='   \n  classDef title_class fill:#0f4162,stroke:#8fa1ff,color:#fff,font-size:26px,font-weight:bold;'
+            title_class='   \n  classDef title_class fill:#fff,stroke:#ffffff,stroke-width:5px,color:#000000,font-size:26px,font-weight:bold,width:260px,padding:20px,text-align:center,rx:20,ry:20'
+
+
             diagramcode+=title_class
 
             major_cat_class_name='major_cat_class'
-            major_cat_class='   \nclassDef major_cat_class fill: #1d79db, stroke:#fff,color:#FFF,font-weight:bold,rx:20,ry:20' 
+            major_cat_class='   \nclassDef major_cat_class fill: #1d79db, stroke:#fff,stroke-width:4px,color:#FFF,font-weight:bold,rx:20,ry:20' 
             #stroke is border.
             diagramcode+=major_cat_class
 
             core_cat_class_name='core_cat_class'
-            core_cat_class='    \nclassDef core_cat_class  fill:#BF5706, stroke:#fff,color:#FFF,font-weight:bold;'
+            core_cat_class='    \nclassDef core_cat_class  fill:#BF5706, stroke:#fff,stroke-width:4px,color:#FFF,font-weight:bold;'
             diagramcode+=core_cat_class
 
             # I can manually make this bigger with spaces
 
-            more_than_3_class='     \nclassDef more_than_3_class  fill:#f96, color:#FFF,font-weight:bold,stroke:#fff;'
+            more_than_3_class='     \nclassDef more_than_3_class  fill:#f96, color:#FFF,font-weight:bold,stroke:#fff,stroke-width:4px;'
 
 
             elective_cat_class_name="elective_cat_class"
-            elective_cat_class='    \nclassDef elective_cat_class  color:#FFF,font-weight:bold,fill:#579d42, stroke:#fff;'
+            elective_cat_class='    \nclassDef elective_cat_class  color:#FFF,font-weight:bold,fill:#579d42, stroke:#fff,stroke-width:4px;'
             diagramcode+=elective_cat_class
 
             gened_cat_class_name='gened_cat_class'
-            gened_cat_class='    \nclassDef gened_cat_class color:#FFF,font-weight:bold,fill:#ae6455, stroke:#fff;'
+            gened_cat_class='    \nclassDef gened_cat_class color:#FFF,font-weight:bold,fill:#ae6455, stroke:#fff,stroke-width:4px;'
             diagramcode+=gened_cat_class
 
 
             opportunity_cat_class_name='opportunity_cat_class'
-            opportunity_cat_class='    \nclassDef opportunity_cat_class color:#FFF,font-weight:bold,fill:#f2bb16, stroke:#fff;'
+            opportunity_cat_class='    \nclassDef opportunity_cat_class color:#FFF,font-weight:bold,fill:#f2bb16, stroke:#fff,stroke-width:4px;'
             diagramcode+=opportunity_cat_class
 
             other_class_name='other_class'
-            other_class= '  \nclassDef other_class color:#FFF,font-weight:bold,fill:#9cadb7, stroke:#fff;'
+            other_class= '  \nclassDef other_class color:#FFF,font-weight:bold,fill:#9cadb7, stroke:#fff,stroke-width:4px;'
             diagramcode+=other_class
             # 
 
@@ -803,11 +818,11 @@ class makeSemesterFiles:
             diagramcode+=titlenode
             diagramcode+=f'class titlenode {title_class_name}\n'
 
-
-            diagramcode+=f'titlenode===>semester1\n'    
+            # this connects to the right semester essentially
+            diagramcode+=f'titlenode==>semester1\n'    
             # this should be respoonsive based on semester lengths
 
-            diagramcode+=f'titlenode===>semester{secondhalf+1-firsthalf}\n'
+            diagramcode+=f'titlenode==>semester{secondhalf+1-firsthalf}\n'
 
             # make all arrows hidden except for the semester arrows...
             for arrowcount in range(arrowcount+2):
@@ -890,8 +905,13 @@ class makeSemesterFiles:
 
         # --------------Now actually building the file and saving it -------------------------------------------------
             # replace this with the path to the schoolfolder in the right file
-            mermaid_file_path=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.mmd')
-            mermaid_savefilepath=os.path.join(degreefolderpath,f'{degreename} semesterdiagram.svg')
+            mermaid_file_path=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.mmd')
+
+            svg_savefilepath=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.svg')
+            png_savefilepath=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.svg')
+
+            empty_nodes_pdffile=os.path.join(new_diagram_folder,f'{degreename} emptynodes.pdf')
+
 
             
             with open(mermaid_file_path, "w") as mermaidsemesterfile:
@@ -904,15 +924,22 @@ class makeSemesterFiles:
 
 
             def rendermmd(createdpath,savepath,configpath):
-                subprocess.run(["mmdc", "-i", createdpath, "-o", savepath,"--configFile",configpath])
+                subprocess.run(["mmdc", "-i", createdpath, "-o", savepath,"--configFile",configpath,"--scale=3"])
 
-            rendermmd(createdpath=mermaid_file_path,savepath=mermaid_savefilepath,configpath=lightthemeconfig)
+            rendermmd(createdpath=mermaid_file_path,savepath=png_savefilepath,configpath=lightthemeconfig)
 
             print(f'Created {mermaid_file_path} and saved it at {mermaid_savefilepath}')
             print(f'degreename is {degreename}')
+
+            def svg_to_pdf_emptynodes(svg_file, pdf_file):
+                svg2pdf(url=svg_file, write_to=pdf_file)
+
+            # this should save the empty nodes pdf in the respective folder. Then I'll 
+            # just have to run it through a stylizing function.
+            svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
             
 
-    def stylepdfs(self):
+    def create_mmd_pdfs(self):
         pass
 
     def getcoursestats():
@@ -953,7 +980,7 @@ print('Testing:\nArchitecture School Name')
 
 print(getattr(architecturefiles,'schoolname'))
 
-architecturefiles.make_excel_files()
+architecturefiles.make_mermaid_files()
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
