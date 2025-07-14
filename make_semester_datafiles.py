@@ -68,7 +68,7 @@ class makeSemesterFiles:
         # this one is fixed 
         self.degreeviewfolderpath='/Users/shalevwiden/Downloads/Projects/degreeview'
         # this should work. If not I need to find a mystery
-        self.schoolfilepath=os.path.join(self.degreeviewfolderpath,self.schoolname)
+        self.schoolfolderpath=os.path.join(self.degreeviewfolderpath,self.schoolname)
         
         self.schoolcolordict={'School of Architecture':'#cdbee9', 'Red McCombs School of Business':'#f9e4af', 
  'School of Civic Leadership':'#096c6c', 'Moody College of Communication':'#7e0107',
@@ -106,7 +106,7 @@ class makeSemesterFiles:
             # now use this to write to csv files.
             # I can actually finish this fast
             
-            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
+            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
             # can change this quite easily
             semestercsvfilename=os.path.join(degreefolderpath,f'{degreename} semestercsvfile.csv')
 
@@ -207,7 +207,7 @@ class makeSemesterFiles:
             # now use this to write to csv files.
             # I can actually finish this fast
             
-            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
+            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
             # can change this quite easily
             # theres spaces which isnt great. But theres also spaces in the degreename. 
             semeseter_excel_filename=os.path.join(degreefolderpath,f'{degreename} semesterfile.xlsx')
@@ -566,7 +566,7 @@ class makeSemesterFiles:
             # now use this to write to csv files.
             # I can actually finish this fast
             
-            degreefolderpath=os.path.join(self.schoolfilepath,degreename)
+            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
             # can change this quite easily
             # theres spaces which isnt great. But theres also spaces in the degreename. 
 
@@ -941,8 +941,125 @@ class makeSemesterFiles:
 
     def create_mmd_pdfs(self):
         pass
+    
+    def get_universitywide_stats(self):
+        '''This makes the csv file. Then I'll still have to scrape data and make visualizations.'''
 
-    def getcoursestats():
+        degreenamelist=[]
+        semestercountlist=[]
+        totalhourslist=[]        
+        numberofcourseslist=[]
+
+        totalmajorhourslist=[]
+        numberofmajorcourse=[]
+
+        for i in range(1,len(self.schooldata)):
+
+        # in this entire folder we are doing things by degree.
+
+
+            key=list(self.schooldata)[i]
+            degreename=key
+            degreename=degreename.replace('/','-').strip()
+
+            print(f'Getting stats for {degreename}')
+            degreenamelist.append(degreename)
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[key]
+
+            
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            # now use this to write to csv files.
+            # I can actually finish this fast
+            
+            universitystatsfolder="/Users/shalevwiden/Downloads/Projects/degreeview/stats"
+            
+
+            numberofsemesters=len(semesterdictionary)
+            semestercountlist.append(numberofsemesters)
+
+            totalhours=0
+
+            coursecount=0
+            majorcoursecount=0
+
+            majorhourscount=0
+
+            for semesternum in range(numberofsemesters):
+                semester=list(semesterdictionary)[semesternum]
+                # semester courses is a dictionary of its own as well
+                semestercourses=semesterdictionary[semester]
+                # that means the semester will be on the first row
+                
+                for coursenameindex in range(len(semestercourses)):
+
+                    coursename=list(semestercourses)[coursenameindex]
+                    # if its NOT a list of lists, ie, a normal course entry
+                    if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
+                        coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
+                        
+                        coursecount+=1
+                        if coursehours!='':
+                            totalhours+=int(coursehours)
+                            if 'major' in coursecategory:
+                                majorcoursecount+=1
+                                majorhourscount+=int(coursehours)
+                    
+                    else:
+                        listofcourses=semestercourses[coursename]
+                        for i in range(len(listofcourses)):
+                            coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+                            excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+                            coursecount+=1
+
+                            if coursehours!='':
+                                totalhours+=int(coursehours)
+                                if 'major' in coursecategory:
+                                    majorcoursecount+=1
+                                    majorhourscount+=int(coursehours)
+
+            # append all the data
+            totalhourslist.append(totalhours)
+            numberofcourseslist.append(coursecount)
+
+
+
+
+
+        semesterstatsfile=os.path.join(universitystatsfolder,'semester_stats.csv')
+        with open(semesterstatsfile,'a') as semstatsfile:
+            writer=csv.writer(semesterstatsfile)
+
+            semesterstatsfile.write([f'{degreename} Number of Semesters:',f'{int(numberofsemesters)}'])
+
+            # can change this quite easily
+
+
+
+    def get_schoolspecific_stats():
+        for i in range(1,len(self.schooldata)):
+
+        # in this entire folder we are doing things by degree.
+
+
+            key=list(self.schooldata)[i]
+            degreename=key
+            degreename=degreename.replace('/','-').strip()
+
+            print(f'Getting stats for {degreename}')
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[key]
+
+            
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            
+            school_stats_folder=os.path.join(self.schoolfolderpath,f'{self.schoolname}stats')
+            if not os.path.exists(school_stats_folder):
+                os.mkdir(school_stats_folder) 
+            
+    def get_degree_stats():
         '''
         Make txt files with this so I can easily read it and place it on the website. 
         '''
@@ -975,12 +1092,46 @@ archschoolname=archdata[archschoolkey]
 
 architecturefiles=makeSemesterFiles(schooldata=archdata)
 print('Testing:\nArchitecture School Folder Path')
-print(architecturefiles.schoolfilepath)
+print(architecturefiles.schoolfolderpath)
 print('Testing:\nArchitecture School Name')
 
 print(getattr(architecturefiles,'schoolname'))
 
 architecturefiles.make_mermaid_files()
+
+def make_universitywide_stats(theasset):
+
+    universitystatsfolder="/Users/shalevwiden/Downloads/Projects/degreeview/stats"
+    # if its deleted this will remake it
+
+    if not os.path.exists( universitystatsfolder):
+        os.mkdir( universitystatsfolder) 
+
+    semesterstatsfile=os.path.join(universitystatsfolder,'semester_stats.csv')
+
+
+    # this will rewrite it everytime I start the file. Clearing it
+
+
+    with open(semesterstatsfile,'w') as semstatsfile:
+        writer=csv.writer(semstatsfile)
+        writer.writerow(['Degree Stats','','','','','The University of Texas at Austin'])
+        writer.writerow(['','','','','',''])
+
+
+        writer.writerow(['Degree Name','Number of Semesters','Total Hours','Total Major Hours','Number of Classes',"Number of Major Classes"])
+    for schooldict in theasset:
+        schoolobject=makeSemesterFiles(schooldata=schooldict)
+        # this appends to the csv file
+        schoolobject.get_universitywide_stats()
+    
+    # now add the closing row
+    with open(semesterstatsfile,'a') as semstatsfile:
+        writer=csv.writer(semstatsfile)
+        writer.writerow(['','','','','',''])
+
+        writer.writerow(['DegreeView','','','','',''])
+        
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
