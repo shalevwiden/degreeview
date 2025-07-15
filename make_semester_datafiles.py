@@ -21,7 +21,7 @@ from openpyxl.utils import column_index_from_string
 # this assigns cells colors
 from openpyxl.styles import PatternFill
 
-
+import time
 import os
 
 from openpyxl.styles import Font
@@ -606,7 +606,7 @@ class makeSemesterFiles:
 
             # establish classes
             title_class_name='title_class'
-            title_class='   \n  classDef title_class fill:#fff,stroke:#ffffff,stroke-width:5px,color:#000000,font-size:26px,font-weight:bold,width:260px,padding:20px,text-align:center,rx:20,ry:20'
+            title_class='   \n  classDef title_class fill:#fff,stroke:#ffffff,stroke-width:5px,color:#ffffff,font-size:26px,font-weight:bold,width:260px,padding:20px,text-align:center,rx:20,ry:20'
 
 
             diagramcode+=title_class
@@ -937,8 +937,11 @@ class makeSemesterFiles:
 
             def rendermmd(createdpath,savepath,configpath):
                 subprocess.run(["mmdc", "-i", createdpath, "-o", savepath,"--configFile",configpath,"--scale=3"])
+            
 
+            # create both svg and png
             rendermmd(createdpath=mermaid_file_path,savepath=originaltheme_png_savefilepath,configpath=lightthemeconfig)
+            rendermmd(createdpath=mermaid_file_path,savepath=svg_savefilepath,configpath=lightthemeconfig)
 
             print(f'Created {mermaid_file_path} and saved it at {originaltheme_png_savefilepath}')
             print(f'degreename is {degreename}')
@@ -953,9 +956,11 @@ class makeSemesterFiles:
         Above is where background and node styling can take place.
 
         Here is where logo, images, sizing, and page appendation can take place.
+
+        This one only creates EVEN numbered semester pdfs.
         '''
 
-        logopath='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/logo4.png'
+        logopath='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/logo6.png'
 
         # this might have to change later lol
         websiteurl_img_path='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/websiteurl.png'
@@ -971,143 +976,622 @@ class makeSemesterFiles:
             print(f'Starting process for {degreename} mermaid file')
             
             # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[key]
+            sugglink=self.schooldata[degreename]
 
-            
-            # now use this to write to csv files.
-            # I can actually finish this fast
-            
-            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
-            # can change this quite easily
-            # theres spaces which isnt great. But theres also spaces in the degreename. 
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            numberofsemesters=len(semesterdictionary)
+            if numberofsemesters%2==0:
 
-            diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
-            
-            originaltheme_png_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
-
-            legendonlypng_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendonly.png'
-
-            originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.pdf')
-            empty_nodes_pdffile=os.path.join(diagram_folder,f'{degreename} emptynodes.pdf')
-
-
-        # step one: convert pdfs to pngs.
-
-            def png_to_pdf(png_path, pdf_path):
-                # Open the PNG and convert to RGB (PDFs can't handle alpha channels)
-                image = Image.open(png_path).convert("RGB")
-                image.save(pdf_path, "PDF")
-                print(f"Saved PDF to: {pdf_path}")
-            
-            # this is the diagram pdf.
-            
-
-            png_to_pdf(png_path=originaltheme_png_file,pdf_path='semesterdiagram.pdf')
-
-
-            # This is the legend only pdf. The png is made in seperatelegend.py.
-
-            def createmainoverlaypdf(diagrampath, outputpath):
-
-                # first get pdf data.
-                base_pdf = PdfReader(diagrampath)
-                page = base_pdf.pages[0]
-                width = float(page.mediabox.width)
-                height = float(page.mediabox.height)
-                print(f'width{width},height {height}')
-                # Create a PDF canvas (like Photoshop canvas)
-                c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
-
-
-                # if I ever change the logo I need to update this and the path.
-                logowidth=2366/3.85
-                logoheight=704/3.85
-
-                websiteurlwidth=2800/5.5
-                websiteurlheight=386/5.5
-
-                r = 12 / 255
-                g = 72 / 255
-                b = 165 / 255
-                # to actually use colors
-                # c.setFillColor(Color(r, g, b))
-                # Text color
-                c.setFillColor(Color(0, 0, 0))
-
-                c.setFont("Helvetica-Bold", 76)
-                # bottom left is the orign
-
-                # Niiice now it is centered
-                headingtext = f"{degreename} Semester Layout"
-                text_width = c.stringWidth(headingtext, "Helvetica-Bold", 76)
-
-                x_center=(width - text_width) / 2
-                c.drawString(x_center, height-200, headingtext)
-
-
-                # create white rectangle in main overlay. 
-                c.setFillColorRGB(1, 1, 1)  
-                c.rect(0, 0, width, 350, fill=1, stroke=0) 
 
                 
+                # now use this to write to csv files.
+                # I can actually finish this fast
+                
+                degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
+                # can change this quite easily
+                # theres spaces which isnt great. But theres also spaces in the degreename. 
 
-                c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
-                c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
-                # draw the link path
+                diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
+                
+                originaltheme_png_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
 
-                # draw the link as well in the bottom
+                legendonlypng_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/legendonly.png'
 
-                c.save()
-                return width,height
+                originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.pdf')
+
+
+            # step one: convert pdfs to pngs.
+
+                def png_to_pdf(png_path, pdf_path):
+                    # Open the PNG and convert to RGB (PDFs can't handle alpha channels)
+                    image = Image.open(png_path).convert("RGB")
+                    image.save(pdf_path, "PDF")
+                    print(f"Saved PDF to: {pdf_path}")
+                
+                # this is the diagram pdf.
+                
+
+                png_to_pdf(png_path=originaltheme_png_file,pdf_path=originaltheme_pdf_file)
+                print(f'Created png to pdf for {originaltheme_pdf_file}')
+
+
+                # This is the legend only pdf. The png is made in seperatelegend.py.
+
+                def createmainoverlaypdf(diagrampath, outputpath):
+
+                    # first get pdf data.
+                    base_pdf = PdfReader(diagrampath)
+                    page = base_pdf.pages[0]
+                    width = float(page.mediabox.width)
+                    height = float(page.mediabox.height)
+                    print(f'width{width},height {height}')
+                    # Create a PDF canvas (like Photoshop canvas)
+                    c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
+
+
+                    # if I ever change the logo I need to update this and the path.
+                    logowidth=1622/3.85
+                    logoheight=478/3.85
+
+                    websiteurlwidth=2800/6.7
+                    websiteurlheight=386/6.7
+
+                    r = 12 / 255
+                    g = 72 / 255
+                    b = 165 / 255
+                    # to actually use colors
+                    # c.setFillColor(Color(r, g, b))
+                    # Text color
+                    c.setFillColor(Color(0, 0, 0))
+
+                    c.setFont("Helvetica-Bold", 67)    
+
+                    maxwidth=width-160
+                    # Niiice now it is centered
+                    headingtext1 = f"{degreename}"
+                    headingtext2="Semester Layout"
+
+                    text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", 67)
+                    if text_width1>maxwidth:
+                        font_size = 57
+                        c.setFont("Helvetica-Bold", 57)
+
+                        text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
+                        if text_width1>maxwidth:
+                            c.setFont("Helvetica-Bold", 50)
+                            font_size = 50
+
+
+                            text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
+
+
+
+                    x_center1=(width - text_width1) / 2
+                    c.drawString(x_center1, height-155, headingtext1)
+
+                    c.setFont("Helvetica-Bold", 67)    
+
+                    text_width2 = c.stringWidth(headingtext2, "Helvetica-Bold", 67)
+
+
+                    x_center2=(width - text_width2) / 2
+                    c.drawString(x_center2, height-257, headingtext2)
+
+
+
+
+                    # create white rectangle in main overlay. 
+                    c.setFillColorRGB(1, 1, 1)  
+                    c.rect(0, 0, width, 350, fill=1, stroke=0) 
+
+                    
+
+                    c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
+                    c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                    # draw the link path
+
+                    # draw the link as well in the bottom
+
+                    c.save()
+                    return width,height
+                
+
+                mainoverlaypath=os.path.join(diagram_folder,'mainoverlay.pdf')
+                
+                createmainoverlaypdf(diagrampath=originaltheme_pdf_file,outputpath=mainoverlaypath)
+
+
+                print(f'Created mainoverlaypath at {mainoverlaypath}\n ')
+                # now just merge them, along with the legend.
+                mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+
+                def merge_diagram_and_overlay_withlegend(pdfpath,mergedlegendpdfpath,mainoverlaypath,outputpath):
+                    # well this finally works somewhat
+                    diagram_pdf = PdfReader(pdfpath)
+                    legendpdf=PdfReader(mergedlegendpdfpath)
+                    mainoverlay_pdf = PdfReader(mainoverlaypath)
+                    writer = PdfWriter()
+
+
+                    diagram_page = diagram_pdf.pages[0]
+                    mainoverlay_page = mainoverlay_pdf.pages[0]  
+                    
+                    diagram_page.merge_page(mainoverlay_page)   #  visual merge
+                    writer.add_page(diagram_page)
+
+                    legendpage=legendpdf.pages[0]
+
+
+                    # Add merged page to writer. This line was causing problems but its good to know
+                    writer.add_page(legendpage)
+
+
+                    with open(outputpath, "wb") as finalpdffile:
+                        writer.write(finalpdffile)
+
+                        # output path is the final pdf file which will be downloaded
+
+                finaloutputpath=os.path.join(diagram_folder,f'{degreename} semesterlayout.pdf')
+
+                merge_diagram_and_overlay_withlegend(pdfpath=originaltheme_pdf_file,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=mainoverlaypath,outputpath=finaloutputpath)
+
+                print(f'Created final output path at {finaloutputpath}')
+
+
+
+                def delete_unnessary_files():
+                    os.remove(originaltheme_pdf_file)
+                    os.remove(mainoverlaypath)
+                    os.remove(originaltheme_png_file)
+                delete_unnessary_files()
+
+                # -----------------MAKE EMPTY NODES HERE
+                activateemptynodes=True
+                if activateemptynodes:
+
+                    emptynodesfolder=os.path.join(diagram_folder,'emptynodesfolder')
+                    if not os.path.exists(emptynodesfolder):
+                        os.mkdir(emptynodesfolder) 
+
+                    time.sleep(3)
+
+                    def svg_to_pdf_emptynodes(svg_file, pdf_file):
+                        svg2pdf(url=svg_file, write_to=pdf_file)
+
+                    # this should save the empty nodes pdf in the respective folder. Then I'll 
+                    # just have to run it through a stylizing function.
+                    # This requires you to generate svg functions for every 
+                    svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
+
+                    empty_nodes_pdffile=os.path.join(emptynodesfolder,f'{degreename} emptynodes.pdf')
+
+                    svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
+                    # now run pdf through all the formatting- define functions above.
+
+                    def create_emptynodes_overlaypdf(diagrampath, outputpath):
+
+                        # first get pdf data.
+                        base_pdf = PdfReader(diagrampath)
+                        page = base_pdf.pages[0]
+                        width = float(page.mediabox.width)
+                        height = float(page.mediabox.height)
+                        print(f'width{width},height {height}')
+                        # Create a PDF canvas (like Photoshop canvas)
+                        c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
+
+
+                        # if I ever change the logo I need to update this and the path.
+                        logowidth=1622/6
+                        logoheight=478/6
+
+                        websiteurlwidth=2800/11
+                        websiteurlheight=386/11
+
+                        r = 12 / 255
+                        g = 72 / 255
+                        b = 165 / 255
+                        # to actually use colors
+                        # c.setFillColor(Color(r, g, b))
+                        # Text color
+                        c.setFillColor(Color(0, 0, 0))
+
+                        c.setFont("Helvetica-Bold", 39)    
+
+                        maxwidth=width-90
+                        # Niiice now it is centered
+                        headingtext1 = f"{degreename}"
+                        headingtext2="Semester Layout"
+
+                        text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", 39)
+                        if text_width1>maxwidth:
+                            font_size = 35
+                            c.setFont("Helvetica-Bold", 35)
+
+                            text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
+                            
+
+
+
+                        x_center1=(width - text_width1) / 2
+                        c.drawString(x_center1, height-75, headingtext1)
+
+                        c.setFont("Helvetica-Bold", 39)    
+
+                        text_width2 = c.stringWidth(headingtext2, "Helvetica-Bold", 39)
+
+
+                        x_center2=(width - text_width2) / 2
+                        c.drawString(x_center2, height-134, headingtext2)
+
+
+
+
+                        # create white rectangle in main overlay to cover the legend is the thing
+                        c.setFillColorRGB(1, 1, 1)  
+                        c.rect(0, 0, width, 250, fill=1, stroke=0) 
+
+                        
+
+                        c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
+                        c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                        # draw the link path
+
+                        # draw the link as well in the bottom
+
+                        c.save()
+                        return width,height
+                    
+
+                    emptynodesoverlaypath=os.path.join(emptynodesfolder,'emptynodesoverlay.pdf')
+                    if "emptynodesmainoverlay.pdf" not in os.listdir(diagram_folder):
+                        create_emptynodes_overlaypdf(diagrampath=empty_nodes_pdffile,outputpath=emptynodesoverlaypath)
+                    else:
+                        print('\nEmpty nodes overlay was already there so didnt create a new one\n')
+
+
+
+
+
+
+                    mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+                    finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreename} semesterlayout_emptynodes.pdf')
+
+                    merge_diagram_and_overlay_withlegend(pdfpath=empty_nodes_pdffile,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=emptynodesoverlaypath,outputpath=finaloutput_emptynodes_path)
+
+                    def delete_nodeunnessary_files():
+                        # all these are used for the creation of the final pdf
+                        os.remove(empty_nodes_pdffile)
+                        os.remove(emptynodesoverlaypath)
+                        os.remove(svg_savefilepath)
+
+                    delete_nodeunnessary_files()
+
+                    print(f'\nCreated empty nodes final output path at {finaloutput_emptynodes_path}.\n')
+
+
             
 
-            mainoverlaypath=os.path.join(diagram_folder,'mainoverlay.pdf')
+    def create_oddnumbered_mmd_pdfs(self):
 
-            createmainoverlaypdf(diagrampath=originaltheme_pdf_file,outputpath=mainoverlaypath)
-            # now just merge them, along with the legend.
-            mergedlegendpdf='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+        '''
+        This takes the pdfs or svgs created by the above function, and turns them into stylized pdfs.
 
-            def merge_diagram_and_overlay_withlegend(pdfpath,mergedlegendpdfpath,mainoverlaypath,outputpath):
-                # well this finally works somewhat
-                diagram_pdf = PdfReader(pdfpath)
-                legendpdf=PdfReader(mergedlegendpdfpath)
-                mainoverlay_pdf = PdfReader(mainoverlaypath)
-                writer = PdfWriter()
+        Above is where background and node styling can take place.
 
-                legendpage=legendpdf.pages[0]
+        Here is where logo, images, sizing, and page appendation can take place.
+          -------------------------------------------------
+        This one only creates ODD numbered semester pdfs.
+        '''
 
-                diagram_page = diagram_pdf.pages[0]
-                mainoverlay_page = mainoverlay_pdf.pages[0]  
+        logopath='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/logo6.png'
+
+        # this might have to change later lol
+        websiteurl_img_path='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/websiteurl.png'
+        for i in range(1,len(self.schooldata)):
+
+        # in this entire folder we are doing things by degree.
+
+
+            key=list(self.schooldata)[i]
+            degreename=key
+            degreename=degreename.replace('/','-').strip()
+
+            print(f'Starting process for {degreename} mermaid file')
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[degreename]
+
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            numberofsemesters=len(semesterdictionary)
+
+            if numberofsemesters%2!=0:
+
+            
+                # now use this to write to csv files.
+                # I can actually finish this fast
                 
-                diagram_page.merge_page(mainoverlay_page)   #  visual merge
-                writer.add_page(diagram_page)
+                degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
+                # can change this quite easily
+                # theres spaces which isnt great. But theres also spaces in the degreename. 
 
-                # Add merged page to writer. This line was causing problems but its good to know
-                writer.add_page(legendpage)
+                diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
+                
+                originaltheme_png_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
+
+                legendonlypng_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/legendonly.png'
+
+                originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.pdf')
 
 
-                with open(outputpath, "wb") as finalpdffile:
-                    writer.write(finalpdffile)
+            # step one: convert pdfs to pngs.
 
-                    # output path is the final pdf file which will be downloaded
+                def png_to_pdf(png_path, pdf_path):
+                    # Open the PNG and convert to RGB (PDFs can't handle alpha channels)
+                    image = Image.open(png_path).convert("RGB")
+                    image.save(pdf_path, "PDF")
+                    print(f"Saved PDF to: {pdf_path}")
+                
+                # this is the diagram pdf.
+                
+
+                png_to_pdf(png_path=originaltheme_png_file,pdf_path=originaltheme_pdf_file)
+                print(f'Created png to pdf for {originaltheme_pdf_file}')
 
 
-            # -----------------MAKE EMPTY NODES HERE
-            activateemptynodes=False
-            if activateemptynodes:
+                # This is the legend only pdf. The png is made in seperatelegend.py.
 
-                def svg_to_pdf_emptynodes(svg_file, pdf_file):
-                    svg2pdf(url=svg_file, write_to=pdf_file)
+                def createmainoverlaypdf(diagrampath, outputpath):
 
-                # this should save the empty nodes pdf in the respective folder. Then I'll 
-                # just have to run it through a stylizing function.
-                # This requires you to generate svg functions for every 
-                svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
+                    # first get pdf data.
+                    base_pdf = PdfReader(diagrampath)
+                    page = base_pdf.pages[0]
+                    width = float(page.mediabox.width)
+                    height = float(page.mediabox.height)
+                    print(f'width{width},height {height}')
+                    # Create a PDF canvas (like Photoshop canvas)
+                    c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
 
-                svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
-                # now run pdf through all the formatting- define functions above.
-    
-    
+
+                    # if I ever change the logo I need to update this and the path.
+                    logowidth=1622/3.85
+                    logoheight=478/3.85
+
+                    websiteurlwidth=2800/6.7
+                    websiteurlheight=386/6.7
+
+                    r = 12 / 255
+                    g = 72 / 255
+                    b = 165 / 255
+                    # to actually use colors
+                    # c.setFillColor(Color(r, g, b))
+                    # Text color
+                    c.setFillColor(Color(0, 0, 0))
+
+                    c.setFont("Helvetica-Bold", 67)    
+
+                    maxwidth=width-160
+                    # Niiice now it is centered
+                    headingtext1 = f"{degreename}"
+                    headingtext2="Semester Layout"
+
+                    text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", 67)
+                    if text_width1>maxwidth:
+                        font_size = 57
+                        c.setFont("Helvetica-Bold", 57)
+
+                        text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
+                        if text_width1>maxwidth:
+                            c.setFont("Helvetica-Bold", 50)
+                            font_size = 50
+
+
+                            text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
+
+
+
+                    x_center1=(width - text_width1) / 2
+                    c.drawString(x_center1, height-155, headingtext1)
+
+                    c.setFont("Helvetica-Bold", 67)    
+
+                    text_width2 = c.stringWidth(headingtext2, "Helvetica-Bold", 67)
+
+
+                    x_center2=(width - text_width2) / 2
+                    c.drawString(x_center2, height-257, headingtext2)
+
+
+
+
+                    # create white rectangle in main overlay. 
+                    c.setFillColorRGB(1, 1, 1)  
+                    c.rect(0, 0, width, 350, fill=1, stroke=0) 
+
+                    
+
+                    c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
+                    c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                    # draw the link path
+
+                    # draw the link as well in the bottom
+
+                    c.save()
+                    return width,height
+                
+
+                mainoverlaypath=os.path.join(diagram_folder,'mainoverlay.pdf')
+                
+                createmainoverlaypdf(diagrampath=originaltheme_pdf_file,outputpath=mainoverlaypath)
+
+
+                print(f'Created mainoverlaypath at {mainoverlaypath}\n ')
+                # now just merge them, along with the legend.
+                mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+
+                def merge_diagram_and_overlay_withlegend(pdfpath,mergedlegendpdfpath,mainoverlaypath,outputpath):
+                    # well this finally works somewhat
+                    diagram_pdf = PdfReader(pdfpath)
+                    legendpdf=PdfReader(mergedlegendpdfpath)
+                    mainoverlay_pdf = PdfReader(mainoverlaypath)
+                    writer = PdfWriter()
+
+
+                    diagram_page = diagram_pdf.pages[0]
+                    mainoverlay_page = mainoverlay_pdf.pages[0]  
+                    
+                    diagram_page.merge_page(mainoverlay_page)   #  visual merge
+                    writer.add_page(diagram_page)
+
+                    legendpage=legendpdf.pages[0]
+
+
+                    # Add merged page to writer. This line was causing problems but its good to know
+                    writer.add_page(legendpage)
+
+
+                    with open(outputpath, "wb") as finalpdffile:
+                        writer.write(finalpdffile)
+
+                        # output path is the final pdf file which will be downloaded
+
+                finaloutputpath=os.path.join(diagram_folder,f'{degreename} semesterlayout.pdf')
+
+                merge_diagram_and_overlay_withlegend(pdfpath=originaltheme_pdf_file,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=mainoverlaypath,outputpath=finaloutputpath)
+
+                print(f'Created final output path at {finaloutputpath}')
+
+
+
+                def delete_unnessary_files():
+                    os.remove(originaltheme_pdf_file)
+                    os.remove(mainoverlaypath)
+                    os.remove(originaltheme_png_file)
+                delete_unnessary_files()
+
+                # -----------------MAKE EMPTY NODES HERE
+                activateemptynodes=True
+                if activateemptynodes:
+
+                    emptynodesfolder=os.path.join(diagram_folder,'emptynodesfolder')
+                    if not os.path.exists(emptynodesfolder):
+                        os.mkdir(emptynodesfolder) 
+
+                    time.sleep(3)
+
+                    def svg_to_pdf_emptynodes(svg_file, pdf_file):
+                        svg2pdf(url=svg_file, write_to=pdf_file)
+
+                    # this should save the empty nodes pdf in the respective folder. Then I'll 
+                    # just have to run it through a stylizing function.
+                    # This requires you to generate svg functions for every 
+                    svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
+
+                    empty_nodes_pdffile=os.path.join(emptynodesfolder,f'{degreename} emptynodes.pdf')
+
+                    svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
+                    # now run pdf through all the formatting- define functions above.
+
+                    def create_emptynodes_overlaypdf(diagrampath, outputpath):
+
+                        # first get pdf data.
+                        base_pdf = PdfReader(diagrampath)
+                        page = base_pdf.pages[0]
+                        width = float(page.mediabox.width)
+                        height = float(page.mediabox.height)
+                        print(f'width{width},height {height}')
+                        # Create a PDF canvas (like Photoshop canvas)
+                        c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
+
+
+                        # if I ever change the logo I need to update this and the path.
+                        logowidth=1622/6
+                        logoheight=478/6
+
+                        websiteurlwidth=2800/11
+                        websiteurlheight=386/11
+
+                        r = 12 / 255
+                        g = 72 / 255
+                        b = 165 / 255
+                        # to actually use colors
+                        # c.setFillColor(Color(r, g, b))
+                        # Text color
+                        c.setFillColor(Color(0, 0, 0))
+
+                        c.setFont("Helvetica-Bold", 39)    
+
+                        maxwidth=width-90
+                        # Niiice now it is centered
+                        headingtext1 = f"{degreename}"
+                        headingtext2="Semester Layout"
+
+                        text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", 39)
+                        if text_width1>maxwidth:
+                            font_size = 35
+                            c.setFont("Helvetica-Bold", 35)
+
+                            text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
+                            
+
+
+
+                        x_center1=(width - text_width1) / 2
+                        c.drawString(x_center1, height-75, headingtext1)
+
+                        c.setFont("Helvetica-Bold", 39)    
+
+                        text_width2 = c.stringWidth(headingtext2, "Helvetica-Bold", 39)
+
+
+                        x_center2=(width - text_width2) / 2
+                        c.drawString(x_center2, height-134, headingtext2)
+
+
+
+
+                        # create white rectangle in main overlay to cover the legend is the thing
+                        c.setFillColorRGB(1, 1, 1)  
+                        c.rect(0, 0, width, 250, fill=1, stroke=0) 
+
+                        
+
+                        c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
+                        c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                        # draw the link path
+
+                        # draw the link as well in the bottom
+
+                        c.save()
+                        return width,height
+                    
+
+                    emptynodesoverlaypath=os.path.join(emptynodesfolder,'emptynodesoverlay.pdf')
+                    if "emptynodesmainoverlay.pdf" not in os.listdir(diagram_folder):
+                        create_emptynodes_overlaypdf(diagrampath=empty_nodes_pdffile,outputpath=emptynodesoverlaypath)
+                    else:
+                        print('\nEmpty nodes overlay was already there so didnt create a new one\n')
+
+
+
+
+
+
+                    mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+                    finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreename} semesterlayout_emptynodes.pdf')
+
+                    merge_diagram_and_overlay_withlegend(pdfpath=empty_nodes_pdffile,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=emptynodesoverlaypath,outputpath=finaloutput_emptynodes_path)
+
+                    def delete_nodeunnessary_files():
+                        # all these are used for the creation of the final pdf
+                        os.remove(empty_nodes_pdffile)
+                        os.remove(emptynodesoverlaypath)
+                        os.remove(svg_savefilepath)
+
+                    delete_nodeunnessary_files()
+
+                    print(f'\nCreated empty nodes final output path at {finaloutput_emptynodes_path}.\n')
+
+
 
 
 
@@ -1279,6 +1763,9 @@ print('Testing:\nArchitecture School Name')
 print(getattr(architecturefiles,'schoolname'))
 
 architecturefiles.make_mermaid_files()
+time.sleep(5)
+
+architecturefiles.create_mmd_pdfs()
 
 def make_universitywide_stats(theasset):
 
@@ -1322,12 +1809,12 @@ def make_universitywide_stats(theasset):
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
-        # make csvs for every school
-        schoolobject.make_excel_files()
+        schoolobject.make_mermaid_files()
+        time.sleep(8)
+        schoolobject.create_mmd_pdfs()
 
 
-
-
+unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 # for a later document where I do this same thing but replicated. For this I will simply just modify the "make_majorcourses_csvs.py"

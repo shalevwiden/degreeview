@@ -45,18 +45,31 @@ Create both horizontal AND vertical fuk it.
 
   ```mermaid
   graph TD
-  subgraph process
-  makemmd("make mmd files for diagram")
-  makepng("make png from mmd using mmd CLI")
-  makepdf("Use pillow to make pdfs from the pngs")
-  makeoverlay("Use reportlab canvas to make logo and heading pdf overlay")
-  mergeo("Merge overlay and pdf")
-  combinewlegend("Combine merged overlay and pdf with static legend pdf)
+  subgraph process["primary pdf process"]
+    makemmd("make mmd files for diagram using python and mmd code")
+    makepng1("make png from mmd using mmd CLI")
+    makepdf("Use pillow to make pdfs from the pngs")
+    makeoverlay("Use reportlab canvas to make logo and heading pdf overlay")
+    mergeo("Merge overlay and pdf")
+    combinenewlegend("Combine merged overlay and pdf with static legend pdf")
+    makemmd --> makepng1 --> makepdf --> makeoverlay --> mergeo --> combinenewlegend
   end
+
   subgraph makelegend
-  makelegendmmd("Make legend mmd code")
-  makepng("Make legend png and then pdf")
-  makelegendoverlay("Make legend overlay")
-  mergesl("Merge secondary overlay with pdf")
+    makelegendmmd("Make legend mmd code")
+    makepng2("Make legend png and then pdf")
+    makelegendoverlay("Make legend overlay")
+    mergelegend("Merge secondary overlay with pdf")
+    makelegendmmd --> makepng2 --> makelegendoverlay --> mergelegend
   end
+
+  mergelegend --> combinenewlegend
   ```
+
+```
+
+```
+
+```
+
+```
