@@ -31,6 +31,19 @@ from openpyxl.styles import Border, Side, Alignment
 import cairosvg
 from cairosvg import svg2pdf
 
+# png to pdf conversion
+from PIL import Image
+
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.colors import Color
+
+
+# for merging the pdfs: and reading them to get data. 
+from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+
+
 # good to check everythings working with the venv:
 if __name__=='__main__':
     print(f'the version of beautiful soup is\n {(bs4.__version__)}')
@@ -570,12 +583,11 @@ class makeSemesterFiles:
             # can change this quite easily
             # theres spaces which isnt great. But theres also spaces in the degreename. 
 
-            new_diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
-            if not os.path.exists(new_diagram_folder):
-                os.mkdir(new_diagram_folder)
+            diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
+            if not os.path.exists(diagram_folder):
+                os.mkdir(diagram_folder)
 
-            mermaid_file_path=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.mmd')
-            mermaid_savefilepath=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.svg')
+            mermaid_file_path=os.path.join(diagram_folder,f'{degreename} semesterdiagram.mmd')
             
 
             totalhours=0
@@ -905,12 +917,12 @@ class makeSemesterFiles:
 
         # --------------Now actually building the file and saving it -------------------------------------------------
             # replace this with the path to the schoolfolder in the right file
-            mermaid_file_path=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.mmd')
+            mermaid_file_path=os.path.join(diagram_folder,f'{degreename} semesterdiagram.mmd')
 
-            svg_savefilepath=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.svg')
-            png_savefilepath=os.path.join(new_diagram_folder,f'{degreename} semesterdiagram.svg')
+            svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
+            originaltheme_png_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
 
-            empty_nodes_pdffile=os.path.join(new_diagram_folder,f'{degreename} emptynodes.pdf')
+            empty_nodes_pdffile=os.path.join(diagram_folder,f'{degreename} emptynodes.pdf')
 
 
             
@@ -926,22 +938,181 @@ class makeSemesterFiles:
             def rendermmd(createdpath,savepath,configpath):
                 subprocess.run(["mmdc", "-i", createdpath, "-o", savepath,"--configFile",configpath,"--scale=3"])
 
-            rendermmd(createdpath=mermaid_file_path,savepath=png_savefilepath,configpath=lightthemeconfig)
+            rendermmd(createdpath=mermaid_file_path,savepath=originaltheme_png_savefilepath,configpath=lightthemeconfig)
 
-            print(f'Created {mermaid_file_path} and saved it at {mermaid_savefilepath}')
+            print(f'Created {mermaid_file_path} and saved it at {originaltheme_png_savefilepath}')
             print(f'degreename is {degreename}')
 
-            def svg_to_pdf_emptynodes(svg_file, pdf_file):
-                svg2pdf(url=svg_file, write_to=pdf_file)
-
-            # this should save the empty nodes pdf in the respective folder. Then I'll 
-            # just have to run it through a stylizing function.
-            svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
             
 
     def create_mmd_pdfs(self):
-        pass
+
+        '''
+        This takes the pdfs or svgs created by the above function, and turns them into stylized pdfs.
+
+        Above is where background and node styling can take place.
+
+        Here is where logo, images, sizing, and page appendation can take place.
+        '''
+
+        logopath='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/logo4.png'
+
+        # this might have to change later lol
+        websiteurl_img_path='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/websiteurl.png'
+        for i in range(1,len(self.schooldata)):
+
+        # in this entire folder we are doing things by degree.
+
+
+            key=list(self.schooldata)[i]
+            degreename=key
+            degreename=degreename.replace('/','-').strip()
+
+            print(f'Starting process for {degreename} mermaid file')
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[key]
+
+            
+            # now use this to write to csv files.
+            # I can actually finish this fast
+            
+            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
+            # can change this quite easily
+            # theres spaces which isnt great. But theres also spaces in the degreename. 
+
+            diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
+            
+            originaltheme_png_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
+
+            legendonlypng_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendonly.png'
+
+            originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.pdf')
+            empty_nodes_pdffile=os.path.join(diagram_folder,f'{degreename} emptynodes.pdf')
+
+
+        # step one: convert pdfs to pngs.
+
+            def png_to_pdf(png_path, pdf_path):
+                # Open the PNG and convert to RGB (PDFs can't handle alpha channels)
+                image = Image.open(png_path).convert("RGB")
+                image.save(pdf_path, "PDF")
+                print(f"Saved PDF to: {pdf_path}")
+            
+            # this is the diagram pdf.
+            
+
+            png_to_pdf(png_path=originaltheme_png_file,pdf_path='semesterdiagram.pdf')
+
+
+            # This is the legend only pdf. The png is made in seperatelegend.py.
+
+            def createmainoverlaypdf(diagrampath, outputpath):
+
+                # first get pdf data.
+                base_pdf = PdfReader(diagrampath)
+                page = base_pdf.pages[0]
+                width = float(page.mediabox.width)
+                height = float(page.mediabox.height)
+                print(f'width{width},height {height}')
+                # Create a PDF canvas (like Photoshop canvas)
+                c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
+
+
+                # if I ever change the logo I need to update this and the path.
+                logowidth=2366/3.85
+                logoheight=704/3.85
+
+                websiteurlwidth=2800/5.5
+                websiteurlheight=386/5.5
+
+                r = 12 / 255
+                g = 72 / 255
+                b = 165 / 255
+                # to actually use colors
+                # c.setFillColor(Color(r, g, b))
+                # Text color
+                c.setFillColor(Color(0, 0, 0))
+
+                c.setFont("Helvetica-Bold", 76)
+                # bottom left is the orign
+
+                # Niiice now it is centered
+                headingtext = f"{degreename} Semester Layout"
+                text_width = c.stringWidth(headingtext, "Helvetica-Bold", 76)
+
+                x_center=(width - text_width) / 2
+                c.drawString(x_center, height-200, headingtext)
+
+
+                # create white rectangle in main overlay. 
+                c.setFillColorRGB(1, 1, 1)  
+                c.rect(0, 0, width, 350, fill=1, stroke=0) 
+
+                
+
+                c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
+                c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                # draw the link path
+
+                # draw the link as well in the bottom
+
+                c.save()
+                return width,height
+            
+
+            mainoverlaypath=os.path.join(diagram_folder,'mainoverlay.pdf')
+
+            createmainoverlaypdf(diagrampath=originaltheme_pdf_file,outputpath=mainoverlaypath)
+            # now just merge them, along with the legend.
+            mergedlegendpdf='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+
+            def merge_diagram_and_overlay_withlegend(pdfpath,mergedlegendpdfpath,mainoverlaypath,outputpath):
+                # well this finally works somewhat
+                diagram_pdf = PdfReader(pdfpath)
+                legendpdf=PdfReader(mergedlegendpdfpath)
+                mainoverlay_pdf = PdfReader(mainoverlaypath)
+                writer = PdfWriter()
+
+                legendpage=legendpdf.pages[0]
+
+                diagram_page = diagram_pdf.pages[0]
+                mainoverlay_page = mainoverlay_pdf.pages[0]  
+                
+                diagram_page.merge_page(mainoverlay_page)   #  visual merge
+                writer.add_page(diagram_page)
+
+                # Add merged page to writer. This line was causing problems but its good to know
+                writer.add_page(legendpage)
+
+
+                with open(outputpath, "wb") as finalpdffile:
+                    writer.write(finalpdffile)
+
+                    # output path is the final pdf file which will be downloaded
+
+
+            # -----------------MAKE EMPTY NODES HERE
+            activateemptynodes=False
+            if activateemptynodes:
+
+                def svg_to_pdf_emptynodes(svg_file, pdf_file):
+                    svg2pdf(url=svg_file, write_to=pdf_file)
+
+                # this should save the empty nodes pdf in the respective folder. Then I'll 
+                # just have to run it through a stylizing function.
+                # This requires you to generate svg functions for every 
+                svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
+
+                svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
+                # now run pdf through all the formatting- define functions above.
     
+    
+
+
+
+
+
     def get_universitywide_stats(self):
         '''This makes the csv file. Then I'll still have to scrape data and make visualizations.'''
 
@@ -951,7 +1122,7 @@ class makeSemesterFiles:
         numberofcourseslist=[]
 
         totalmajorhourslist=[]
-        numberofmajorcourse=[]
+        numberofmajorcourses=[]
 
         for i in range(1,len(self.schooldata)):
 
@@ -963,6 +1134,7 @@ class makeSemesterFiles:
             degreename=degreename.replace('/','-').strip()
 
             print(f'Getting stats for {degreename}')
+
             degreenamelist.append(degreename)
             
             # kept as sugg link as continuity from make_makorcourses_csvs
@@ -1002,7 +1174,7 @@ class makeSemesterFiles:
                         coursecount+=1
                         if coursehours!='':
                             totalhours+=int(coursehours)
-                            if 'major' in coursecategory:
+                            if 'major' in coursecategory.lower():
                                 majorcoursecount+=1
                                 majorhourscount+=int(coursehours)
                     
@@ -1010,28 +1182,37 @@ class makeSemesterFiles:
                         listofcourses=semestercourses[coursename]
                         for i in range(len(listofcourses)):
                             coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                            excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
                             coursecount+=1
 
                             if coursehours!='':
                                 totalhours+=int(coursehours)
-                                if 'major' in coursecategory:
+                                if 'major' in coursecategory.lower():
                                     majorcoursecount+=1
                                     majorhourscount+=int(coursehours)
 
-            # append all the data
+            # append all the data FOR ONE DEGREE to the lists which are FOR THE WHLE SCHOOl
             totalhourslist.append(totalhours)
             numberofcourseslist.append(coursecount)
-
+            totalmajorhourslist.append(majorhourscount)
+            numberofmajorcourses.append(majorcoursecount)
 
 
 
 
         semesterstatsfile=os.path.join(universitystatsfolder,'semester_stats.csv')
         with open(semesterstatsfile,'a') as semstatsfile:
-            writer=csv.writer(semesterstatsfile)
+            writer=csv.writer(semstatsfile)
 
-            semesterstatsfile.write([f'{degreename} Number of Semesters:',f'{int(numberofsemesters)}'])
+            writer.writerow([f'{self.schoolname}'])
+
+            # simply write all of the data
+            # degreename, semestercount, totalhours, numberofcourses, majorhours, majorcourses
+            for datarow in zip(degreenamelist,semestercountlist,totalhourslist,totalmajorhourslist,numberofcourseslist,numberofmajorcourses):
+                writer.writerow(datarow)
+            # cereates a blank line
+            writer.writerow([])
+
+
 
             # can change this quite easily
 
@@ -1120,6 +1301,8 @@ def make_universitywide_stats(theasset):
 
 
         writer.writerow(['Degree Name','Number of Semesters','Total Hours','Total Major Hours','Number of Classes',"Number of Major Classes"])
+        writer.writerow([])
+
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
         # this appends to the csv file
@@ -1131,7 +1314,10 @@ def make_universitywide_stats(theasset):
         writer.writerow(['','','','','',''])
 
         writer.writerow(['DegreeView','','','','',''])
-        
+    
+    print('Hopefully made stats folder')
+
+# make_universitywide_stats(theasset=theasset)
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
@@ -1139,7 +1325,6 @@ def unpacktheasset_into_makefilesclass(theasset):
         # make csvs for every school
         schoolobject.make_excel_files()
 
-# unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 

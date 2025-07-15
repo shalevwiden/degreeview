@@ -40,3 +40,23 @@ Create both horizontal AND vertical fuk it.
 ### Mermaid Creation and Mermaid CLI
 
 - Used mmd.js and the mermaid CLI to create mermaid files and then used subprocess to save them to specified file locations.
+  <br>
+  This project is simply complicated. Heres a mermaid to explain the mermaid part.
+
+  ```mermaid
+  graph TD
+  subgraph process
+  makemmd("make mmd files for diagram")
+  makepng("make png from mmd using mmd CLI")
+  makepdf("Use pillow to make pdfs from the pngs")
+  makeoverlay("Use reportlab canvas to make logo and heading pdf overlay")
+  mergeo("Merge overlay and pdf")
+  combinewlegend("Combine merged overlay and pdf with static legend pdf)
+  end
+  subgraph makelegend
+  makelegendmmd("Make legend mmd code")
+  makepng("Make legend png and then pdf")
+  makelegendoverlay("Make legend overlay")
+  mergesl("Merge secondary overlay with pdf")
+  end
+  ```
