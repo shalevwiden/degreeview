@@ -127,7 +127,13 @@ class makeSemesterFiles:
             
             degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
             # can change this quite easily
-            semestercsvfilename=os.path.join(degreefolderpath,f'{degreename} semestercsvfile.csv')
+
+
+            degreenamecleaned=degreename.replace(' ','').lower().split('(')
+            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
+            degreenamecleaned=degreenamecleaned.replace(')','')
+
+            semestercsvfilename=os.path.join(degreefolderpath,f'{degreenamecleaned}-semestercsvfile.csv')
 
             totalhours=0
             numberofsemesters=len(semesterdictionary)
@@ -229,7 +235,13 @@ class makeSemesterFiles:
             degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
             # can change this quite easily
             # theres spaces which isnt great. But theres also spaces in the degreename. 
-            semeseter_excel_filename=os.path.join(degreefolderpath,f'{degreename} semesterfile.xlsx')
+
+
+            degreenamecleaned=degreename.replace(' ','').lower().split('(')
+            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
+            degreenamecleaned=degreenamecleaned.replace(')','')
+
+            semeseter_excel_filename=os.path.join(degreefolderpath,f'{degreenamecleaned}-semesterfile.xlsx')
 
             totalhours=0
             numberofsemesters=len(semesterdictionary)
@@ -923,12 +935,17 @@ class makeSemesterFiles:
 
         # --------------Now actually building the file and saving it -------------------------------------------------
             # replace this with the path to the schoolfolder in the right file
-            mermaid_file_path=os.path.join(diagram_folder,f'{degreename} semesterdiagram.mmd')
 
-            svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
-            originaltheme_png_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
 
-            empty_nodes_pdffile=os.path.join(diagram_folder,f'{degreename} emptynodes.pdf')
+            degreenamecleaned=degreename.replace(' ','').lower().split('(')
+            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
+            degreenamecleaned=degreenamecleaned.replace(')','')
+
+            mermaid_file_path=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.mmd')
+
+            svg_savefilepath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.svg')
+            originaltheme_png_savefilepath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.png')
+
 
 
             
@@ -974,6 +991,11 @@ class makeSemesterFiles:
             degreename=key
             degreename=degreename.replace('/','-').strip()
 
+
+            degreenamecleaned=degreename.replace(' ','').lower().split('(')
+            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
+            degreenamecleaned=degreenamecleaned.replace(')','')
+
             print(f'Starting process for {degreename} mermaid file')
             
             # kept as sugg link as continuity from make_makorcourses_csvs
@@ -994,11 +1016,11 @@ class makeSemesterFiles:
 
                 diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
                 
-                originaltheme_png_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
+                originaltheme_png_file=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.png')
 
                 legendonlypng_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/legendonly.png'
 
-                originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.pdf')
+                originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.pdf')
 
 
             # step one: convert pdfs to pngs.
@@ -1132,7 +1154,7 @@ class makeSemesterFiles:
 
                         # output path is the final pdf file which will be downloaded
 
-                finaloutputpath=os.path.join(diagram_folder,f'{degreename} semesterlayout.pdf')
+                finaloutputpath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterlayout.pdf')
 
                 merge_diagram_and_overlay_withlegend(pdfpath=originaltheme_pdf_file,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=mainoverlaypath,outputpath=finaloutputpath)
 
@@ -1162,9 +1184,9 @@ class makeSemesterFiles:
                     # this should save the empty nodes pdf in the respective folder. Then I'll 
                     # just have to run it through a stylizing function.
                     # This requires you to generate svg functions for every 
-                    svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
+                    svg_savefilepath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.svg')
 
-                    empty_nodes_pdffile=os.path.join(emptynodesfolder,f'{degreename} emptynodes.pdf')
+                    empty_nodes_pdffile=os.path.join(emptynodesfolder,f'{degreenamecleaned}-emptynodes.pdf')
 
                     svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
                     # now run pdf through all the formatting- define functions above.
@@ -1255,7 +1277,7 @@ class makeSemesterFiles:
 
 
                     mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/mergedlegend.pdf'
-                    finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreename} semesterlayout_emptynodes.pdf')
+                    finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreenamecleaned}-semesterlayout_emptynodes.pdf')
 
                     merge_diagram_and_overlay_withlegend(pdfpath=empty_nodes_pdffile,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=emptynodesoverlaypath,outputpath=finaloutput_emptynodes_path)
 
@@ -1295,6 +1317,11 @@ class makeSemesterFiles:
             degreename=key
             degreename=degreename.replace('/','-').strip()
 
+
+            degreenamecleaned=degreename.replace(' ','').lower().split('(')
+            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
+            degreenamecleaned=degreenamecleaned.replace(')','')
+
             print(f'Starting process for {degreename} mermaid file')
             
             # kept as sugg link as continuity from make_makorcourses_csvs
@@ -1315,11 +1342,11 @@ class makeSemesterFiles:
 
                 diagram_folder=os.path.join(degreefolderpath,'diagrams_and_mmdstuff')
                 
-                originaltheme_png_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.png')
+                originaltheme_png_file=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.png')
 
                 legendonlypng_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/legendonly.png'
 
-                originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreename} semesterdiagram.pdf')
+                originaltheme_pdf_file=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.pdf')
 
 
             # step one: convert pdfs to pngs.
@@ -1461,7 +1488,7 @@ class makeSemesterFiles:
 
                         # output path is the final pdf file which will be downloaded
 
-                finaloutputpath=os.path.join(diagram_folder,f'{degreename} semesterlayout.pdf')
+                finaloutputpath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterlayout.pdf')
 
                 merge_diagram_and_overlay_withlegend(pdfpath=originaltheme_pdf_file,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=mainoverlaypath,outputpath=finaloutputpath)
 
@@ -1491,9 +1518,9 @@ class makeSemesterFiles:
                     # this should save the empty nodes pdf in the respective folder. Then I'll 
                     # just have to run it through a stylizing function.
                     # This requires you to generate svg functions for every 
-                    svg_savefilepath=os.path.join(diagram_folder,f'{degreename} semesterdiagram.svg')
+                    svg_savefilepath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterdiagram.svg')
 
-                    empty_nodes_pdffile=os.path.join(emptynodesfolder,f'{degreename} emptynodes.pdf')
+                    empty_nodes_pdffile=os.path.join(emptynodesfolder,f'{degreenamecleaned}-emptynodes.pdf')
 
                     svg_to_pdf_emptynodes(svg_file=svg_savefilepath,pdf_file=empty_nodes_pdffile)
                     # now run pdf through all the formatting- define functions above.
@@ -1592,7 +1619,7 @@ class makeSemesterFiles:
 
 
                     mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/mergedlegend.pdf'
-                    finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreename} semesterlayout_emptynodes.pdf')
+                    finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreenamecleaned}-semesterlayout_emptynodes.pdf')
 
                     merge_diagram_and_overlay_withlegend(pdfpath=empty_nodes_pdffile,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=emptynodesoverlaypath,outputpath=finaloutput_emptynodes_path)
 
@@ -1819,7 +1846,7 @@ def make_universitywide_stats(theasset):
     
     print('Hopefully made stats folder')
 
-make_universitywide_stats(theasset=theasset)
+# make_universitywide_stats(theasset=theasset)
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
