@@ -108,8 +108,13 @@ def make_majorcoursesonly_csvs(schooldata):
         # degree folders, not school folders being made here
          if not os.path.exists(degreefolderpath):
             os.mkdir(degreefolderpath)
+        
 
-         majors_csvfile_name=f'{degreename} Courses.csv'
+         degreenamecleaned=degreename.replace(' ','').lower().split('(')
+         degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
+         degreenamecleaned=degreenamecleaned.replace(')','')
+
+         majors_csvfile_name=f'{degreenamecleaned}-courses.csv'
 
          fullpath=f'{degreefolderpath}/{majors_csvfile_name}'
 
@@ -168,6 +173,7 @@ def unpacktheasset_into_majorcoursesonlycsvs(theasset):
         make_majorcoursesonly_csvs(schooldata=schooldict)
         print(f'Made major csvs for {schoolname}')
 
+unpacktheasset_into_majorcoursesonlycsvs(theasset=theasset)
     
 if __name__=='__main__':
 
@@ -205,6 +211,8 @@ def makemajorcoursesexcelfiles(schooldata):
     # 
       
 
+
+# added July 15
 
 # probably do this in another file and just import
 def makemajoronly_mmdfiles(schooldata):

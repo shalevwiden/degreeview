@@ -89,6 +89,7 @@ def getsuggcoursespages(degreeandprogramurl):
 
     majornav=degreesoup.find('li', attrs={"class":"self"})
     # I'm checking the text, not the url, so I should be fine with sugg or even suggested
+    # this is the logic to add the sugg links
     majorslinks=[a['href'] for a in majornav.find_all('a') if "sugg" in a.get_text().lower()]
     full_majorlinks=[]
 

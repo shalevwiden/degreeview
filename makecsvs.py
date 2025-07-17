@@ -44,12 +44,14 @@ def makecsv(schooldata):
         writer.writerow([schoolname, "The University of Texas at Austin"])
         writer.writerow(['',''])
 
-        writer.writerow(["Degree","URL to Suggested Arrangement of Courses Page"])
+        writer.writerow(["Degree",""])
         # removed extra space
         for i in range(1,len(schooldata)):
             key=list(schooldata)[i]
             value=schooldata[key]
-            writer.writerow([key,value])
+            writer.writerow([key])
+
+
         writer.writerow(['',''])
         writer.writerow(['DegreeView'])
 
@@ -65,9 +67,16 @@ def automate_csvs(schooldata,directorypath):
     This is later called in the below unpack function.
     '''
     schoolname=schooldata[list(schooldata)[0]]
+    # file schoolname ensures in the csv the names are still the same, with uppercase and spaces
+    fileschoolname=schoolname.replace(' ','').lower()
+
+    firstschooldegreepage=schooldata[list(schooldata)[1]]
+
+    schoollink=firstschooldegreepage.split('/')
+    schoollink="https://catalog.utexas.edu/"+schoollink[3]+'/'+schoollink[4]
 
     # no point to trying to not have spaces, as the school names all have spaces in them 
-    filename=f'{schoolname} Degrees'
+    filename=f'{fileschoolname}degrees'
     filepath=f'{directorypath}/{filename}'
     with open(f'{filepath}.csv','w',newline='') as filename:
         writer=csv.writer(filename)
@@ -75,14 +84,21 @@ def automate_csvs(schooldata,directorypath):
         writer.writerow([schoolname, "The University of Texas at Austin"])
         writer.writerow(['',''])
 
-        writer.writerow(["Degree","URL to Suggested Arrangement of Courses Page"])
-        for i in range(1,len(schooldata)):
+
+        writer.writerow(["Link to School Page","Degree"])
+
+        firstdegreename=list(schooldata)[1]
+        writer.writerow([schoollink,firstdegreename])
+        for i in range(2,len(schooldata)):
             key=list(schooldata)[i]
             value=schooldata[key]
-            writer.writerow([key,value])
-        writer.writerow(['',''])
+            # the degree names are in the second column
+            writer.writerow(["",key])
         writer.writerow(['',''])
         writer.writerow(['DegreeView'])
+
+
+
 
 def unpack_the_asset_into_csvs(the_asset):
     # enter this as an argument to automate csvs
@@ -112,7 +128,7 @@ def unpack_the_asset_into_csvs(the_asset):
 
 # every time I run this file(makecsvs.py) it makes new csvs because of this line. 
 # ---------------------------------------------------------------------------------------------------------------------
-# unpack_the_asset_into_csvs(the_asset=theasset)
+unpack_the_asset_into_csvs(the_asset=theasset)
 print('Unpacked')
 
 # import the function I made in the adjacent file
@@ -121,4 +137,5 @@ from getall_suggestedcoursespages import getcollegenames
 if __name__=="__main__":
     print('imported "getcollegenames" function \n')
     print('\ndamn this works',"the colleges following are in UT:\n")
+    print('Calling get college names:\n')
     print(getcollegenames())

@@ -93,6 +93,12 @@ class makeSemesterFiles:
         
         self.schoolcolor=self.schoolcolordict[self.schoolname]
 
+        self.logopath='/Users/shalevwiden/Downloads/Projects/dvwebsitecreation/logo_design/logo6.png'
+
+
+        # this might have to change later lol
+        self.websiteurl_img_path='/Users/shalevwiden/Downloads/Projects/dvwebsitecreation/logo_design/websiteurl.png'
+
     def __str__(self):
         returnstring=f'This is an object to create files for {self.schoolname}'
         return returnstring
@@ -959,11 +965,6 @@ class makeSemesterFiles:
 
         This one only creates EVEN numbered semester pdfs.
         '''
-
-        logopath='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/logo6.png'
-
-        # this might have to change later lol
-        websiteurl_img_path='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/websiteurl.png'
         for i in range(1,len(self.schooldata)):
 
         # in this entire folder we are doing things by degree.
@@ -976,7 +977,7 @@ class makeSemesterFiles:
             print(f'Starting process for {degreename} mermaid file')
             
             # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[degreename]
+            sugglink=self.schooldata[key]
 
             semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
             numberofsemesters=len(semesterdictionary)
@@ -1025,7 +1026,7 @@ class makeSemesterFiles:
                     width = float(page.mediabox.width)
                     height = float(page.mediabox.height)
                     print(f'width{width},height {height}')
-                    # Create a PDF canvas (like Photoshop canvas)
+                    # create pdf canvas
                     c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
 
 
@@ -1086,8 +1087,8 @@ class makeSemesterFiles:
 
                     
 
-                    c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
-                    c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                    c.drawImage(self.logopath, 25, 9, width=logowidth, height=logoheight)
+                    c.drawImage(self.websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
                     # draw the link path
 
                     # draw the link as well in the bottom
@@ -1103,7 +1104,7 @@ class makeSemesterFiles:
 
                 print(f'Created mainoverlaypath at {mainoverlaypath}\n ')
                 # now just merge them, along with the legend.
-                mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+                mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/mergedlegend.pdf'
 
                 def merge_diagram_and_overlay_withlegend(pdfpath,mergedlegendpdfpath,mainoverlaypath,outputpath):
                     # well this finally works somewhat
@@ -1176,7 +1177,7 @@ class makeSemesterFiles:
                         width = float(page.mediabox.width)
                         height = float(page.mediabox.height)
                         print(f'width{width},height {height}')
-                        # Create a PDF canvas (like Photoshop canvas)
+                        # create pdf canvas
                         c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
 
 
@@ -1232,8 +1233,8 @@ class makeSemesterFiles:
 
                         
 
-                        c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
-                        c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                        c.drawImage(self.logopath, 25, 9, width=logowidth, height=logoheight)
+                        c.drawImage(self.websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
                         # draw the link path
 
                         # draw the link as well in the bottom
@@ -1253,7 +1254,7 @@ class makeSemesterFiles:
 
 
 
-                    mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+                    mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/mergedlegend.pdf'
                     finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreename} semesterlayout_emptynodes.pdf')
 
                     merge_diagram_and_overlay_withlegend(pdfpath=empty_nodes_pdffile,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=emptynodesoverlaypath,outputpath=finaloutput_emptynodes_path)
@@ -1281,12 +1282,10 @@ class makeSemesterFiles:
         Here is where logo, images, sizing, and page appendation can take place.
           -------------------------------------------------
         This one only creates ODD numbered semester pdfs.
+
+        Also to run this you must also run create_mmd_files because this function and the even one delete the pngs after theyre created to save storage.
         '''
 
-        logopath='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/logo6.png'
-
-        # this might have to change later lol
-        websiteurl_img_path='/Users/shalevwiden/Downloads/Projects/degreeviewwebsite/logo_design/websiteurl.png'
         for i in range(1,len(self.schooldata)):
 
         # in this entire folder we are doing things by degree.
@@ -1299,7 +1298,7 @@ class makeSemesterFiles:
             print(f'Starting process for {degreename} mermaid file')
             
             # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[degreename]
+            sugglink=self.schooldata[key]
 
             semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
             numberofsemesters=len(semesterdictionary)
@@ -1348,7 +1347,7 @@ class makeSemesterFiles:
                     width = float(page.mediabox.width)
                     height = float(page.mediabox.height)
                     print(f'width{width},height {height}')
-                    # Create a PDF canvas (like Photoshop canvas)
+                    # create pdf canvas
                     c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
 
 
@@ -1369,36 +1368,44 @@ class makeSemesterFiles:
 
                     c.setFont("Helvetica-Bold", 67)    
 
-                    maxwidth=width-160
-                    # Niiice now it is centered
-                    headingtext1 = f"{degreename}"
-                    headingtext2="Semester Layout"
+                    maxwidth=width*.6
+                    
+                    headingtext1 = f"{degreename.split('(')[0]}"
+                    headingtext2 = f"({degreename.split('(')[1]}"
 
-                    text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", 67)
-                    if text_width1>maxwidth:
-                        font_size = 57
-                        c.setFont("Helvetica-Bold", 57)
+                    headingtext3="Semester Layout"
 
-                        text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
-                        if text_width1>maxwidth:
-                            c.setFont("Helvetica-Bold", 50)
-                            font_size = 50
+                    # text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", 67)
+                    # if text_width1>maxwidth:
+                    #     font_size = 57
+                    #     c.setFont("Helvetica-Bold", 57)
 
-
-                            text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
-
+                    #     text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
+                    #     if text_width1>maxwidth:
+                    #         c.setFont("Helvetica-Bold", 50)
+                    #         font_size = 50
 
 
-                    x_center1=(width - text_width1) / 2
-                    c.drawString(x_center1, height-155, headingtext1)
+                    #         text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", font_size)
 
-                    c.setFont("Helvetica-Bold", 67)    
+
+
+                    
+                    x_position1=(190)
+                    c.drawString(x_position1, height-455, headingtext1)
+
 
                     text_width2 = c.stringWidth(headingtext2, "Helvetica-Bold", 67)
 
 
-                    x_center2=(width - text_width2) / 2
-                    c.drawString(x_center2, height-257, headingtext2)
+                    x_position2=(190)
+                    c.drawString(x_position2, height-550, headingtext2)
+
+                    # heading text 2 will always be 67, "Semester Layout"
+                    c.setFont("Helvetica-Bold", 67)
+
+                    x_position3=(190)
+                    c.drawString(x_position3, height-645, headingtext3)
 
 
 
@@ -1409,8 +1416,8 @@ class makeSemesterFiles:
 
                     
 
-                    c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
-                    c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                    c.drawImage(self.logopath, 25, 9, width=logowidth, height=logoheight)
+                    c.drawImage(self.websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
                     # draw the link path
 
                     # draw the link as well in the bottom
@@ -1426,7 +1433,7 @@ class makeSemesterFiles:
 
                 print(f'Created mainoverlaypath at {mainoverlaypath}\n ')
                 # now just merge them, along with the legend.
-                mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+                mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/mergedlegend.pdf'
 
                 def merge_diagram_and_overlay_withlegend(pdfpath,mergedlegendpdfpath,mainoverlaypath,outputpath):
                     # well this finally works somewhat
@@ -1499,7 +1506,7 @@ class makeSemesterFiles:
                         width = float(page.mediabox.width)
                         height = float(page.mediabox.height)
                         print(f'width{width},height {height}')
-                        # Create a PDF canvas (like Photoshop canvas)
+                        # create pdf canvas
                         c = canvas.Canvas(outputpath,  pagesize=(width, height))  # (612 x 792 pt)
 
 
@@ -1520,11 +1527,15 @@ class makeSemesterFiles:
 
                         c.setFont("Helvetica-Bold", 39)    
 
-                        maxwidth=width-90
+                        maxwidth=width*.45
                         # Niiice now it is centered
-                        headingtext1 = f"{degreename}"
-                        headingtext2="Semester Layout"
+                            
+                        headingtext1 = f"{degreename.split('(')[0]}"
+                        headingtext2 = f"({degreename.split('(')[1]}"
 
+                        headingtext3="Semester Layout"
+
+                        # smaller font since the svg is alot smaller
                         text_width1 = c.stringWidth(headingtext1, "Helvetica-Bold", 39)
                         if text_width1>maxwidth:
                             font_size = 35
@@ -1534,19 +1545,23 @@ class makeSemesterFiles:
                             
 
 
+# --------------------------------------------
 
-                        x_center1=(width - text_width1) / 2
-                        c.drawString(x_center1, height-75, headingtext1)
+                        x_position1=(150)
+                        c.drawString(x_position1, height-230, headingtext1)
 
                         c.setFont("Helvetica-Bold", 39)    
 
                         text_width2 = c.stringWidth(headingtext2, "Helvetica-Bold", 39)
 
 
-                        x_center2=(width - text_width2) / 2
-                        c.drawString(x_center2, height-134, headingtext2)
+                        x_position2=(150)
+                        c.drawString(x_position2, height-290, headingtext2)
 
 
+
+                        x_position3=(150)
+                        c.drawString(x_position3, height-350, headingtext3)
 
 
                         # create white rectangle in main overlay to cover the legend is the thing
@@ -1555,8 +1570,8 @@ class makeSemesterFiles:
 
                         
 
-                        c.drawImage(logopath, 25, 9, width=logowidth, height=logoheight)
-                        c.drawImage(websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                        c.drawImage(self.logopath, 25, 9, width=logowidth, height=logoheight)
+                        c.drawImage(self.websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
                         # draw the link path
 
                         # draw the link as well in the bottom
@@ -1576,7 +1591,7 @@ class makeSemesterFiles:
 
 
 
-                    mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/mergedlegend.pdf'
+                    mergedlegendpdf_path='/Users/shalevwiden/Downloads/Coding_Files/Mermaid/Coursemmd/legendfolder/mergedlegend.pdf'
                     finaloutput_emptynodes_path=os.path.join(emptynodesfolder,f'{degreename} semesterlayout_emptynodes.pdf')
 
                     merge_diagram_and_overlay_withlegend(pdfpath=empty_nodes_pdffile,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=emptynodesoverlaypath,outputpath=finaloutput_emptynodes_path)
@@ -1683,9 +1698,10 @@ class makeSemesterFiles:
 
 
 
-        semesterstatsfile=os.path.join(universitystatsfolder,'semester_stats.csv')
-        with open(semesterstatsfile,'a') as semstatsfile:
-            writer=csv.writer(semstatsfile)
+        utstatsfilepath=os.path.join(universitystatsfolder,'universityoftexas_stats.csv')
+
+        with open(utstatsfilepath,'a') as utstatsfile:
+            writer=csv.writer(utstatsfile)
 
             writer.writerow([f'{self.schoolname}'])
 
@@ -1762,10 +1778,9 @@ print('Testing:\nArchitecture School Name')
 
 print(getattr(architecturefiles,'schoolname'))
 
-architecturefiles.make_mermaid_files()
-time.sleep(5)
+# architecturefiles.make_mermaid_files()
 
-architecturefiles.create_mmd_pdfs()
+# architecturefiles.create_oddnumbered_mmd_pdfs()
 
 def make_universitywide_stats(theasset):
 
@@ -1775,14 +1790,14 @@ def make_universitywide_stats(theasset):
     if not os.path.exists( universitystatsfolder):
         os.mkdir( universitystatsfolder) 
 
-    semesterstatsfile=os.path.join(universitystatsfolder,'semester_stats.csv')
+    utstatsfilepath=os.path.join(universitystatsfolder,'universityoftexas_stats.csv')
 
 
     # this will rewrite it everytime I start the file. Clearing it
 
 
-    with open(semesterstatsfile,'w') as semstatsfile:
-        writer=csv.writer(semstatsfile)
+    with open(utstatsfilepath,'w') as utstatsfile:
+        writer=csv.writer(utstatsfile)
         writer.writerow(['Degree Stats','','','','','The University of Texas at Austin'])
         writer.writerow(['','','','','',''])
 
@@ -1796,26 +1811,26 @@ def make_universitywide_stats(theasset):
         schoolobject.get_universitywide_stats()
     
     # now add the closing row
-    with open(semesterstatsfile,'a') as semstatsfile:
-        writer=csv.writer(semstatsfile)
+    with open(utstatsfilepath,'a') as utstatsfile:
+        writer=csv.writer(utstatsfile)
         writer.writerow(['','','','','',''])
 
         writer.writerow(['DegreeView','','','','',''])
     
     print('Hopefully made stats folder')
 
-# make_universitywide_stats(theasset=theasset)
+make_universitywide_stats(theasset=theasset)
 
 def unpacktheasset_into_makefilesclass(theasset):
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
+        schoolobject.makecsvfiles()
+        schoolobject.make_excel_files()
         schoolobject.make_mermaid_files()
-        time.sleep(8)
         schoolobject.create_mmd_pdfs()
-
+        schoolobject.create_oddnumbered_mmd_pdfs()
 
 unpacktheasset_into_makefilesclass(theasset=theasset)
-
 
 # for a later document where I do this same thing but replicated. For this I will simply just modify the "make_majorcourses_csvs.py"
 class makeMajorFiles:
