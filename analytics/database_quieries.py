@@ -100,9 +100,20 @@ print(f'Length List\n')
 lengthlist=make_length_list()
 
 lengthlistsorted_long=sorted(lengthlist,key=lambda x:len(x[2]),reverse=True)
-print(lengthlistsorted_long)
-# print(lengthlistsorted_long[0],len(lengthlistsorted_long[0][2]))
+# print(lengthlistsorted_long)
+
+lengthlistsorted_short=sorted(lengthlist,key=lambda x:len(x[1]))
+
+print("Longest Course Name:\n")
+print(lengthlistsorted_long[0],len(lengthlistsorted_long[0][2]))
+
 def make_length_csv():
+
+    lengthlist=make_length_list()
+    lengthlistsorted_long=sorted(lengthlist,key=lambda x:len(x[2]),reverse=True)
+    lengthlistsorted_short=sorted(lengthlist,key=lambda x:len(x[1]))
+
+
     with open('/Users/shalevwiden/Downloads/Projects/degreeview/stats/longest_courselengths.csv','w') as file:
         writer=csv.writer(file)
         writer.writerow(['Degreename','Coursename','Length of Coursename'])
@@ -115,9 +126,9 @@ def make_length_csv():
         writer=csv.writer(file)
         writer.writerow(['Degreename','Coursename','Length of Coursename'])
 
-        for list in lengthlistsorted_long:
+        for list in lengthlistsorted_short:
             degreename, shortestresult, longestresult=list    
-            writer.writerow([degreename,longestresult,len(longestresult)])
+            writer.writerow([degreename,shortestresult,len(shortestresult)])
         
 
 
