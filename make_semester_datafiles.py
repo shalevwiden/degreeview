@@ -43,6 +43,9 @@ from reportlab.lib.colors import Color
 # for merging the pdfs: and reading them to get data. 
 from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 
+# for database stuff
+import sqlite3
+
 
 # good to check everythings working with the venv:
 if __name__=='__main__':
@@ -103,6 +106,109 @@ class makeSemesterFiles:
         returnstring=f'This is an object to create files for {self.schoolname}'
         return returnstring
    
+    def upload_to_database(self):
+        '''
+        
+        Uses SQLite to upload to databases.
+        We will then to quieries on said databases.
+
+        
+        '''
+        for i in range(1,len(self.schooldata)):
+            
+            key=list(self.schooldata)[i]
+            degreename=key
+            degreename=degreename.replace('/','-').strip()
+
+            print(f'Starting process for {degreename} ')
+            
+            # kept as sugg link as continuity from make_makorcourses_csvs
+            sugglink=self.schooldata[key]
+
+            
+            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
+            # now use this to write to csv files.
+            # I can actually finish this fast
+            
+            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
+            # can change this quite easily
+
+
+            # its a little different from the database name, use underscore instead of hyphen
+            degreenamecleaned=degreename.replace(' ','').lower().split('(')
+            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
+            degreenamecleaned=degreenamecleaned.replace(')','')
+
+            
+
+            databasepath=os.path.join(degreefolderpath,f'{degreenamecleaned}-database.db')
+            # hyphens and commas not allowed in tablename
+            tabledegreename=degreenamecleaned.replace('-','_').replace(',','_').replace('&','and').replace("'","")
+
+            tablename=f'{tabledegreename}_table'
+            def maketable():
+                '''This creates the table for course data in the db'''
+                with sqlite3.connect(databasepath) as conn:
+                    cursor=conn.cursor()
+
+                # table name lowercase
+                    createtablecommand=f'''CREATE TABLE IF NOT EXISTS "{tablename}" (Coursecode TEXT , Coursename TEXT, Hours INT, Category TEXT, UpperDivStatus TEXT );'''
+                    cursor.execute(createtablecommand)
+                    conn.commit()
+            maketable()
+            totalhours=0
+            numberofsemesters=len(semesterdictionary)
+            
+
+                # .write stuff now mf
+                # split up sems 1-4 and 5-8 lol
+                
+            with sqlite3.connect(databasepath) as conn:
+                cursor=conn.cursor()
+
+                    
+                for semesternum in range(numberofsemesters):
+                    semester=list(semesterdictionary)[semesternum]
+                    # semester courses is a dictionary of its own as well
+                    semestercourses=semesterdictionary[semester]
+                        
+                    for coursenameindex in range(len(semestercourses)):
+
+                        coursename=list(semestercourses)[coursenameindex]
+                            # if its NOT a list of lists:
+                        if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
+                            coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
+                            cursor.execute(f'INSERT INTO {tablename} (Coursecode, Coursename, Hours, Category, UpperDivStatus) values(?,?,?,?,?);',
+                                   [coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+                            
+
+                            if coursehours!='':
+                                totalhours+=int(coursehours)
+                            
+                        else:
+                            listofcourses=semestercourses[coursename]
+                            for i in range(len(listofcourses)):
+                                coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
+                                cursor.execute(f'INSERT INTO {tablename} (Coursecode, Coursename, Hours, Category, UpperDivStatus) values(?,?,?,?,?);',
+                                   [coursecode,coursename,coursehours,coursecategory,upperdivstatus])
+
+                                if coursehours!='':
+                                    totalhours+=int(coursehours)
+
+
+                    # empty line between semesters
+                    cursor.execute(f'INSERT INTO {tablename} (Coursecode, Coursename, Hours, Category, UpperDivStatus) values(?,?,?,?,?);',
+                                   [None,None,None,None,None])
+                conn.commit()
+                print(f'Created {degreenamecleaned}-database.db\n')
+                
+
+
+
+
+
+            
+            
     def makecsvfiles(self):
         '''
         This uses the result of the scrape semester data function to make a csv file out of it.
@@ -2120,7 +2226,10 @@ class makeSemesterFiles:
 
 
             # can change this quite easily
-
+            '''
+            This is used to perform highest number of major hours and normal hours in datavisualizations.py
+            '''
+        return [degreenamelist,totalhourslist,totalmajorhourslist]
 
 
     def get_schoolspecific_stats():
@@ -2144,7 +2253,13 @@ class makeSemesterFiles:
             school_stats_folder=os.path.join(self.schoolfolderpath,f'{self.schoolname}stats')
             if not os.path.exists(school_stats_folder):
                 os.mkdir(school_stats_folder) 
-            
+
+
+    def get_degree_per_school_counts(self):
+        # returns a 2 item list
+        return [self.schoolname,len(self.schooldata)-1]
+
+
     def get_degree_stats():
         '''
         Make txt files with this so I can easily read it and place it on the website. 
@@ -2167,23 +2282,25 @@ class makeSemesterFiles:
 
 
 
-workingdir=os.getcwd()
-print(f'Working dir:{workingdir}')
+
 # archdata testing
-archdata=theasset[0]
+def archtesting():
+    archdata=theasset[0]
 
-archschoolkey=list(archdata)[0]
-archschoolname=archdata[archschoolkey]
-# print(f'School key: {archschoolkey}. School name: {archschoolname}')
+    archschoolkey=list(archdata)[0]
+    archschoolname=archdata[archschoolkey]
+    # print(f'School key: {archschoolkey}. School name: {archschoolname}')
 
-architecturefiles=makeSemesterFiles(schooldata=archdata)
-print('Testing:\nArchitecture School Folder Path')
-print(architecturefiles.schoolfolderpath)
-print('Testing:\nArchitecture School Name')
+    architecturefiles=makeSemesterFiles(schooldata=archdata)
+    print('Testing:\nArchitecture School Folder Path')
+    print(architecturefiles.schoolfolderpath)
+    print('Testing:\nArchitecture School Name')
 
-print('Getting the attribute:\n')
-print(getattr(architecturefiles,'schoolname'))
-print()
+    print('Getting the attribute:\n')
+    print(getattr(architecturefiles,'schoolname'))
+    print()
+    architecturefiles.upload_to_database()
+# archtesting()
 
 
 def make_universitywide_stats(theasset):
@@ -2223,15 +2340,43 @@ def make_universitywide_stats(theasset):
     
     print('Hopefully made stats folder')
 
-# make_universitywide_stats(theasset=theasset)
-
-def unpacktheasset_into_makefilesclass(theasset):
+def make_big_datalist(theasset):
+    '''
+    This is used to find highest number of major hours and normal hours for a degree
+    '''
+    biglist=[]
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
-        schoolobject.make_excel_files()
-        schoolobject.make_darktheme_excel_files()
+        degreenamelist, totalhours,totalmajorhours=schoolobject.get_universitywide_stats()
+        biglist.append([degreenamelist,totalhours,totalmajorhours])
+    return biglist
+# print(make_big_datalist(theasset=theasset))
 
+
+def maekcountlist(theasset):
+    '''
+    This counts the number of degree programs per school, allowing you to make a pie chart. 
+    '''
+    countlist=[]
+    for schooldict in theasset:
+        schoolobject=makeSemesterFiles(schooldata=schooldict)
+        count=schoolobject.get_degree_per_school_counts()
+        countlist.append(count)
+    print(countlist)
+
+
+def unpacktheasset_into_makefilesclass(theasset):
+    '''
+    This is the primary function that works with the functions in the class to make files
+    '''
+    
+    for schooldict in theasset:
+        schoolobject=makeSemesterFiles(schooldata=schooldict)
+        schoolobject.upload_to_database()   
+       
+    
 unpacktheasset_into_makefilesclass(theasset=theasset)
+
 
 def runentirefile(theasset):
 

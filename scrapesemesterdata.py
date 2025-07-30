@@ -246,8 +246,8 @@ def getallcourses_splitbysemester(suggcourse_link):
             # establish each semester dictionary
             semesterdictionary[currentsemester]={}
 
-
-    print(f'Created semesterdictionary for {degreename}\n')
+    # this shows up in makedatafiles.py but its ok
+    print(f'Created semesterdictionary for {degreename}')
     return semesterdictionary
 
 
