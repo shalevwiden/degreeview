@@ -199,6 +199,8 @@ class makeSemesterFiles:
                     # empty line between semesters
                     cursor.execute(f'INSERT INTO {tablename} (Coursecode, Coursename, Hours, Category, UpperDivStatus) values(?,?,?,?,?);',
                                    [None,None,None,None,None])
+                                   
+                 # commit to the database 
                 conn.commit()
                 print(f'Created {degreenamecleaned}-database.db\n')
                 
