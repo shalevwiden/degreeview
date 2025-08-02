@@ -33,7 +33,7 @@ interiorsoup=BeautifulSoup(interior_suggested_arrangement.text,'html.parser')
 
 def getallcourses_splitbysemester(suggcourse_link): 
     '''
-    Returns a list of dictionaries. In each dictionary, the first key will be Semester and the first value will be the number of the semester.
+    Dictionary of dictionaries, with the keys being semester num , like "1st Semester" and the values being the semester data.  
     Each dictionary in the list of dictionaries will be the coursename as the value and the course code, hours, upper/lower division, and the course type:
     Major, core, minor, or general education.
     Later these categories will be used to create visualizations.
