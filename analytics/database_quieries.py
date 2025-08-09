@@ -133,3 +133,72 @@ def make_length_csv():
 
 
 
+
+def countcourses(folderpath):
+    '''This does quieries on the databases for every degree to get the longest and shortest coursenames'''
+    '''Important: takes a SCHOOL folder path.'''
+    
+    schoolcount=0
+    for root,folders,files in os.walk(folderpath):
+        
+        for file in files:
+            # this gets all the databases. But theres only databases for each degreeplan, so it works. 
+            if file.endswith(".db"):
+                fullpath=os.path.join(root,file)
+
+                # this gets the last part
+                degreefoldername = os.path.basename(root)
+                degreename=degreefoldername.replace('-','/')
+
+                # degreenamecleaned is in the database name(file)
+                degreenamecleaned=file.replace('-database.db',"")
+                # this is for cleaning the name for the table which is very specific
+                tabledegreename=degreenamecleaned.replace('-','_').replace(',','_').replace('&','and').replace("'","")
+                tablename=f'{tabledegreename}_table'
+
+                with sqlite3.connect(fullpath) as conn:
+
+                    '''
+                    Find coursecount in the "Coursename" named column.
+
+                    '''
+                    cursor=conn.cursor()
+
+                    length_course_column_command=f'''
+                    SELECT COUNT(*) 
+                    FROM {tablename} 
+                    WHERE Coursename IS NOT NULL AND Coursename != '';
+                    '''
+
+                    cursor.execute(length_course_column_command)
+
+                    degreecount=cursor.fetchone()[0]
+                    schoolcount+=degreecount
+                    
+
+    print(f'School course count for {os.path.basename(folderpath)}: {schoolcount}')
+    return schoolcount
+
+
+def countallcourses():
+    # borrowed from make_semester_datafiles.py
+
+    totalcount=0
+    for schooldata in theasset:
+
+        schoolnamekey=list(schooldata)[0]
+        schoolname=schooldata[schoolnamekey]
+
+        # this one is fixed 
+        degreeviewfolderpath='/Users/shalevwiden/Downloads/Projects/degreeview'
+
+        # this should work. 
+        schoolfolderpath=os.path.join(degreeviewfolderpath,schoolname)
+        
+        # print(f'\nRunning Course analysis for {schoolname}\n')
+        coursecount=countcourses(folderpath=schoolfolderpath)
+        totalcount+=coursecount
+    return totalcount
+
+totalcourses=countallcourses()
+print(f'\nTotal courses (on suggested arrangement of courses page): {totalcourses}')

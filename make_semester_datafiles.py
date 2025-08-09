@@ -1060,7 +1060,7 @@ class makeSemesterFiles:
     def makehorizontalexcelfiles(self):
         '''Maybe do this later. With Excel it shouldnt be toooo hard'''
         
-    pass
+        pass
     def make_mermaid_files(self):
 
 # we start at 1 because 0 is the school name 
@@ -1434,6 +1434,8 @@ class makeSemesterFiles:
 
 
 
+
+
             
             with open(mermaid_file_path, "w") as mermaidsemesterfile:
                 mermaidsemesterfile.write(diagramcode)
@@ -1445,6 +1447,8 @@ class makeSemesterFiles:
 
 
             def rendermmd(createdpath,savepath,configpath):
+                # adding a background here actually works
+
                 subprocess.run(["mmdc", "-i", createdpath, "-o", savepath,"--configFile",configpath,"--scale=3"])
             
 
@@ -2355,7 +2359,7 @@ def make_big_datalist(theasset):
 # print(make_big_datalist(theasset=theasset))
 
 
-def maekcountlist(theasset):
+def makecountlist(theasset):
     '''
     This counts the number of degree programs per school, allowing you to make a pie chart. 
     '''

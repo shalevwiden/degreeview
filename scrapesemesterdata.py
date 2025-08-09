@@ -263,14 +263,6 @@ if __name__=="__main__":
         print(f'len of {currentsemester}: {len(econdict[currentsemester])}')
 
 
-    # print('Geophysics stuff')
-
-    # geolink='https://catalog.utexas.edu/undergraduate/geosciences/degrees-and-programs/bs-geological-sciences/sugg-geophysics-bsgeosci/'
-    # geo_dict=getallcourses_splitbysemester(suggcourse_link=geolink)
-    # print(f'\nGeodict\n\n{geo_dict}\n\n')
-    # for currentsemester in geo_dict:
-    #     print(f'Sem:{currentsemester}:\n{geo_dict[currentsemester]}')
-    #     print(f'len of {currentsemester}: {len(geo_dict[currentsemester])}')
 
 
 
