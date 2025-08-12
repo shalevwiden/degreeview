@@ -132,6 +132,7 @@ def make_majorcoursesonly_csvs(schooldata):
             totalhours=0
             for coursename in majordatadict:
                 #   if its not a repeat course like the "upper division major course" ones
+               
                 
                 # check if the first item of the value is not a list. It should be a string if it has has coursecode.
                 if len(majordatadict[coursename])==3 and not isinstance(majordatadict[coursename][0],list):

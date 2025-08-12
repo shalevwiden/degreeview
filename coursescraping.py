@@ -92,6 +92,24 @@ def find_major_coursedata(course_soup):
                 # turns out coursecode is a string
 
                 # get the status from the number stuff
+                nameblock=tds[1].find('span',class_="blockindent")
+                codeblock=tds[0].find('span',class_="blockindent")
+
+                originalcoursecode=coursecode
+
+
+                if nameblock:   
+                    coursename=coursename.split('and')
+
+                    fullname=''
+                    for i in range(len(coursename)):
+                        if i==len(coursename)-1:
+                            fullname+=coursename[i].strip()
+
+                        else:
+                            fullname+=coursename[i].strip()+' and '
+                    # reassign
+                    coursename=fullname
 
                 lowerdivstatus="Lower Division"
                 upperdivstatus="Upper Division"
@@ -104,9 +122,24 @@ def find_major_coursedata(course_soup):
                     else:
                         status=lowerdivstatus
                
-                   
+                if not codeblock:
+                    if any(char.isdigit() for char in coursecode):
+                        coursenum=coursecode.split(' ')[-1][1:3]
+                        if int(coursenum)>=20:
+                            status=upperdivstatus
+                        else:
+                            status=lowerdivstatus
+                elif codeblock:
+                    firstcourse=coursecode.split('&')[0].strip()
+                    if any(char.isdigit() for char in firstcourse):
+                            coursenum=coursecode.split(' ')[-1][1:3]
+                            if int(coursenum)>=20:
+                                status=upperdivstatus
+                            else:
+                                status=lowerdivstatus
 
-                
+               
+                    
 
                 thirdtd=tds[2]
                 coursehours='na'

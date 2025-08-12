@@ -1588,7 +1588,9 @@ class makeSemesterFiles:
 
 
                     x_center2=(width - text_width2) / 2
-                    c.drawString(x_center2, height-257, headingtext2)
+                    # No semester layout string I'm good
+
+                    # c.drawString(x_center2, height-257, headingtext2)
 
 
 
@@ -1734,7 +1736,7 @@ class makeSemesterFiles:
 
 
                         x_center2=(width - text_width2) / 2
-                        c.drawString(x_center2, height-134, headingtext2)
+                        # c.drawString(x_center2, height-134, headingtext2)
 
 
 
@@ -1922,7 +1924,7 @@ class makeSemesterFiles:
                     c.setFont("Helvetica-Bold", 67)
 
                     x_position3=(190)
-                    c.drawString(x_position3, height-645, headingtext3)
+                    # c.drawString(x_position3, height-645, headingtext3)
 
 
 
@@ -2078,7 +2080,7 @@ class makeSemesterFiles:
 
 
                         x_position3=(150)
-                        c.drawString(x_position3, height-350, headingtext3)
+                        # c.drawString(x_position3, height-350, headingtext3)
 
 
                         # create white rectangle in main overlay to cover the legend is the thing
@@ -2389,13 +2391,12 @@ def runentirefile(theasset):
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
         
-        schoolobject.makecsvfiles()
-        schoolobject.make_excel_files()
+
         schoolobject.make_mermaid_files()
         schoolobject.create_mmd_pdfs()
         schoolobject.create_oddnumbered_mmd_pdfs()
 
-
+runentirefile(theasset=theasset)
 # for a later document where I do this same thing but replicated. For this I will simply just modify the "make_majorcourses_csvs.py"
 class makeMajorFiles:
     def __init__(self):
