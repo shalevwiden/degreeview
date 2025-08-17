@@ -73,3 +73,5 @@ Create both horizontal AND vertical fuk it.
 ```
 
 ```
+
+In makestylizedpdfs.py theres the dolphin pdf which is the name -dolphinocean and the tystare which is the name 'tystare'. To change which one is made you need to change the mmdc.

@@ -57,7 +57,9 @@ pdftemplatesfolder = Path('/Users/shalevwiden/Downloads/Coding_Files/Python/Beau
 sys.path.insert(0, str(pdftemplatesfolder))
 
 # Now you can import the function as if it were local
-from pdftemplatesfolder import create_stare_png
+from stareoverlay import create_stare_png
+
+from dolphinoverlay import create_dolphin_png
 
 
 
@@ -223,858 +225,7 @@ class makeSemesterFiles:
 
 
 
-            
-            
-    def makecsvfiles(self):
-        '''
-        This uses the result of the scrape semester data function to make a csv file out of it.
-        '''
-
-        # for each degree in school data
-        for i in range(1,len(self.schooldata)):
-            
-            key=list(self.schooldata)[i]
-            degreename=key
-            degreename=degreename.replace('/','-').strip()
-
-            print(f'Starting process for {degreename} ')
-            
-            # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[key]
-
-            
-            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
-            # now use this to write to csv files.
-            # I can actually finish this fast
-            
-            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
-            # can change this quite easily
-
-
-            degreenamecleaned=degreename.replace(' ','').lower().split('(')
-            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
-            degreenamecleaned=degreenamecleaned.replace(')','')
-
-            semestercsvfilename=os.path.join(degreefolderpath,f'{degreenamecleaned}-semestercsvfile.csv')
-
-            totalhours=0
-            numberofsemesters=len(semesterdictionary)
-            csvobjectdict={}                        
-            print(f'\ncsv object has been rest to {len(csvobjectdict)}\n\n\n')
-            
-            rowcount=0
-            with open(semestercsvfilename,'w',newline='') as semestercsvfile:
-
-                # .write stuff now mf
-                # split up sems 1-4 and 5-8 lol
-                writer=csv.writer(semestercsvfile)
-                writer.writerow([f'{degreename}',"","","",f'{self.schoolname}',"The University of Texas at Austin"])
-                writer.writerow(['','','','',''])
-                # due to the complex nature of the rows this needs a csv object
-                # this actually wont be necessary in excel. 
-                writer.writerow(['','Course Code','Course Name','Hours','Category','Upper/Lower Division'])
-                
-                
-                for semesternum in range(numberofsemesters):
-                    semester=list(semesterdictionary)[semesternum]
-                    # semester courses is a dictionary of its own as well
-                    semestercourses=semesterdictionary[semester]
-                    
-                    csvobjectdict[rowcount]=[f'{semester}']
-                    rowcount+=1
-                    for coursenameindex in range(len(semestercourses)):
-
-                        coursename=list(semestercourses)[coursenameindex]
-                        # if its NOT a list of lists:
-                        if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-                            coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                            csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
-                            rowcount+=1
-                            if coursehours!='':
-                                totalhours+=int(coursehours)
-                        
-                        else:
-                            listofcourses=semestercourses[coursename]
-                            for i in range(len(listofcourses)):
-                                coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                                csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
-                                rowcount+=1
-
-                                if coursehours!='':
-                                    totalhours+=int(coursehours)
-
-
-                    # line between semesters
-                    csvobjectdict[rowcount]=['','','','','']
-                    rowcount+=1
-
-
-
-
-                print(f'len csv object={len(csvobjectdict)}')
-                for row in csvobjectdict:
-                    writer.writerow(csvobjectdict[row])
-
-                writer.writerow(['','','',f'Total Hours: {totalhours}',''])
-                writer.writerow(['DegreeView','','','','','DegreeView'])
-
-                # this is for those giant architecture majors and some engineering that take like 6 years
         
-
-                
-
-
-
-        
-
-        print(f'Made a semestercsv for {degreename}:\n As {semestercsvfilename}')
-#-----------------------------------------------------------------------------------
-
-        
-    def make_excel_files(self):
-        '''
-        This uses the result of the scrape semester data function to make an excel file out of it.
-        For the CSV files I did them fully vertical. For these excel files, since I can control what columns and cells things are going,
-        I want it to be more of a horizontal feel. 
-
-        '''
-        for i in range(1,len(self.schooldata)):
-            
-            key=list(self.schooldata)[i]
-            degreename=key
-            degreename=degreename.replace('/','-').strip()
-
-            print(f'Starting process for {degreename} excel file')
-            
-            # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[key]
-
-            
-            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
-            # now use this to write to csv files.
-            # I can actually finish this fast
-            
-            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
-            # can change this quite easily
-            # theres spaces which isnt great. But theres also spaces in the degreename. 
-
-
-            degreenamecleaned=degreename.replace(' ','').lower().split('(')
-            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
-            degreenamecleaned=degreenamecleaned.replace(')','')
-
-            semeseter_excel_filename=os.path.join(degreefolderpath,f'{degreenamecleaned}-semesterfile.xlsx')
-
-            totalhours=0
-            numberofsemesters=len(semesterdictionary)
-            excelobject=[]                        
-            print(f'Excel object has been reset to {len(excelobject)}\n\n\n')
-
-
-
-            '''
-            Use Font and OpenPyXL to create nicely formatted tabular data
-            '''
-
-            semesterworkbook=Workbook()
-            # gets the default worksheet
-            ws=semesterworkbook.active
-
-
-
-                
-            titlefont=Font(size=26,bold=True)
-
-            headingborder=Border(bottom=Side(style='mediumDashDot'))
-
-            headingsfonts=Font(size=18,bold=True)
-            subheadingsfont=Font(size=17,bold=True)
-            utnamefont=Font(size=19, color='FFBF5701', name='Georgia', bold=True)
-            # update later
-            semesterfont=Font(bold=True,size=18)
-
-            # applied to the actual semester data. 
-            datafont=Font(size=15,name='Helvetica')
-
-
-            leftalign=Alignment(horizontal='left')
-            centeralign=Alignment(horizontal='center')
-            
-
-
-
-            # total height of 40
-
-
-            # first row after title that is. Start at row 3 since rows 1 and 2 were merged
-            firstrow=[f'{degreename}',"","","",f'{self.schoolname}',"The University of Texas at Austin"]
-                
-            # colindex is like i            
-            # start= 1 means start at the first column
-            for col_index, value in enumerate(firstrow, start=1):
-                # adjust row here
-                headingcell=ws.cell(row=3, column=col_index, value=value)
-                # use.font to assign the font I see
-                if col_index==6:
-
-                    headingcell.font=utnamefont
-                    headingcell.border=headingborder
-                elif col_index==1:
-                    headingcell.font=headingsfonts
-                    headingcell.border=headingborder
-                    headingcell.alignment=centeralign
-                else:
-                    headingcell.font=headingsfonts
-                    headingcell.border=headingborder
-
-                    # print(datacell.font.size)
-
-
-            blankrow=['','','','','','','','']
-            # appends to the next empty row. Like writer.writerow(['']) for csvs
-            ws.append(blankrow)
-            
-                        
-            subheadingrow=['','Course Code','Course Name','Hours','Category','Upper/Lower Division']
-            ws.append(subheadingrow)
-            # now apply styles
-            for cell in ws[5]:
-                cell.font=subheadingsfont
-                cell.alignment=leftalign
-
-
-            # now the meat of the file, the data
-            
-
-
-
-            # for each semester
-            rowcount=0
-            for semesternum in range(numberofsemesters):
-                semester=list(semesterdictionary)[semesternum]
-                # semester courses is a dictionary of its own as well
-                semestercourses=semesterdictionary[semester]
-                # that means the semester will be on the first row
-                excelobject.append([f'{semester}   '])
-                rowcount+=1
-                for coursenameindex in range(len(semestercourses)):
-
-                    coursename=list(semestercourses)[coursenameindex]
-                    # if its NOT a list of lists, ie, a normal course entry
-                    if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-                        coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                        excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
-                        rowcount+=1
-                        if coursehours!='':
-                            totalhours+=int(coursehours)
-                    
-                    else:
-                        listofcourses=semestercourses[coursename]
-                        for i in range(len(listofcourses)):
-                            coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                            excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
-                            rowcount+=1
-
-                            if coursehours!='':
-                                totalhours+=int(coursehours)
-
-
-                # line between semesters
-                excelobject.append(['','','','',''])
-                rowcount+=1
-
-            # adding to excel file
-            # rowval is important for adding rows in order
-            rowval=6
-
-            for rowentry in range(len(excelobject)):
-                # update it here so it updates by row not column...although
-                rowval += 1
-                        # start at column one, and then remember the padding rows are added later. 
-                for col_index, value in enumerate(excelobject[rowentry], start=1):
-                    # change alignnment here. 1 indexed not 0
-                    datacell = ws.cell(row=rowval, column=col_index, value=value)
-
-                    if col_index==1:
-                        # use.font to assign the font I see
-                        datacell.font=semesterfont
-                        datacell.alignment=Alignment(horizontal='right')
-
-                    elif col_index in [2,3]:
-                        datacell.font=datafont
-                        datacell.alignment=leftalign
-                    elif col_index==4: #hourscol
-                        datacell.font=datafont
-                        datacell.alignment=centeralign
-                    elif col_index in [5,6]:
-                        datacell.font=datafont
-                        datacell.alignment=leftalign
-                    
-            
-                       
-
-
-            print(f'len excel object={len(excelobject)}, ie number of datarows')
-            
-
-# -----------------------------end data stuff --------------------------------------------------------
-            ws.append(blankrow)
-            totalhoursrow=['','','',f'Total Hours: {totalhours}','','']
-
-            # this lastrow value is actually used for the last TWO rows
-            lastrowindex=rowcount+6
-            for col_index, value in enumerate(totalhoursrow, start=1):
-                
-                # use.font to assign the font I see
-                cell=ws.cell(row=lastrowindex+1, column=col_index, value=value)
-                # FF=full opacity 
-                cell.font=datafont
-
-           
-            lastrow=['DegreeView','','','','','degreeviewsite.com']
-            lastrowindex+=2 # 6 rows before we start data stuff. Then rowcount is the amount of data. 
-
-            for col_index, value in enumerate(lastrow, start=1):
-                
-                # use.font to assign the font I see
-                lastcell=ws.cell(row=lastrowindex, column=col_index, value=value)
-                # FF=full opacity 
-                if col_index==6:
-                    lastcell.font=Font(name='Roboto',size=19, bold=True, color='000000')
-                    lastcell.alignment=Alignment(horizontal='left',vertical='bottom')
-
-                else:
-                    # logo cell
-                    lastcell.font=Font(name='Barlow',size=30, bold=True, color='0c48a5')
-                    lastcell.alignment=Alignment(horizontal='left',vertical='center')
-
-                # one more cause now we wrote the actual last row there
-                ws.row_dimensions[lastrowindex+1].height = 50
-
-
-
-            # ---------------formatting stuff------------------
-            
-            # add padding
-            
-            
-            ws.insert_rows(1)      #new row
-            ws.insert_cols(1)       # new col
-
-            # ws.columns gets columns. Each column is a tuple of cells
-            for column_cells in ws.columns:
-                # max function gets the max in a list. Same for min
-                # generator must be in ()
-                cellwidthgenerator=(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
-                colwidth = max(cellwidthgenerator)
-
-                firstcell=column_cells[0]
-                # every cell has a .column_letter attribute
-                col_letter = firstcell.column_letter
-                col_index=column_index_from_string(col_letter)
-                # scale the width factor to make the columns wider
-                if col_index==7:  
-                    # make the UT Austin column alot wider
-                    ws.column_dimensions[col_letter].width = int(colwidth)*2
-                elif col_index==6:
-                    ws.column_dimensions[col_letter].width = int(colwidth)*1.5
-                elif col_index==5:
-                    ws.column_dimensions[col_letter].width=int(colwidth)*.7
-                elif col_index==3:
-                    ws.column_dimensions[col_letter].width=int(colwidth)*2
-                   
-                # the semester column
-                elif col_index==2:
-                    ws.column_dimensions[col_letter].width=int(colwidth)*1.26
-            
-
-                else:
-                    ws.column_dimensions[col_letter].width = int(colwidth)*1.2
-                
-
-
-
-            # set sizes for the padding row and column. Units of default font which is usually Arial it seems
-
-            ws.column_dimensions['A'].width=15
-            ws.column_dimensions['H'].width=15
-            ws.row_dimensions[1].height=25
-            ws.row_dimensions[lastrowindex+2].height=25
-
-            # ------------------------------------TITLE STUFF-------------------------------------------
-
-            # create a merged 'Degree view and degreename header can't lie".
-            ws.merge_cells('B2:G3')    
-            ws.row_dimensions[2].height = 30
-            ws.row_dimensions[3].height = 30
-            mergedrowcontent=f'{degreename} Sample Semester Layout'
-            
-            # refer to top left of merged cells
-            titlecell=ws['B2']
-            titlecell.value=mergedrowcontent
-            titlecell.alignment = Alignment(horizontal='center', vertical='center')
-            titlecell.font=titlefont
-
-        # ------------------------ CONTINUE FORMATTING STUFF -----------------------------------------------------
-            # apply a border around the entire file -----------------------------------------------------------------------------
-
-            # make it responsive based on the amount of data
-            # remove the +1 here to have no border
-            rows = list(ws['B2':f'G{lastrowindex+1}'])
-            min_row = 2
-            max_row = lastrowindex+1
-
-            min_col = column_index_from_string('B')  
-            max_col = column_index_from_string('G') 
-
-            
-            # where border code used to be
-            
-            # make the entire worksheet a color:
-            backgroundcolor=PatternFill(fill_type="solid", start_color="F0F0F0") #end_color='0000FF' fill_type="gray125" or linear later
-
-            # have the background be like a padding. 
-            for row in ws.iter_rows(min_row=1, max_row=lastrowindex+2, min_col=1, max_col=8):
-                for cell in row:
-                    cell.fill = backgroundcolor
-            
-            # reverse the background for cells with content:
-
-            whitefill=PatternFill(fill_type="solid", start_color="FFFFFF")
-            # re-add gridline borders:
-
-            gridline_border = Border(
-                left=Side(border_style="thin", color="DDDDDD"),
-                right=Side(border_style="thin", color="DDDDDD"),
-                top=Side(border_style="thin", color="DDDDDD"),
-                bottom=Side(border_style="thin", color="DDDDDD")
-            )
-
-            for row in ws.iter_rows(min_row=min_row, max_row=max_row, min_col=min_col, max_col=max_col):
-                for cell in row:
-                    cell.fill = whitefill
-                    cell.border=gridline_border
-            
-            # this is the border that will go around everything.
-            # Use logic to only add border to the cells on the outside.
-            entire_ws_border=Side(style='thick',color='000000')
-            
-            for row_index, row in enumerate(rows, start=min_row):
-                for col_index, cell in enumerate(row, start=min_col):
-                    current = cell.border
-
-                    
-                    # remember we defined side. and you do Border(Side=style))
-                    '''
-                    This is the final peice of the puzzle that adds borders.
-                    If sides if empty, then
-                    cell.border = Border(), which defines no borders. Normally it will be entire_ws_border border preset. 
-                    '''
-                    cell.border = Border(
-            top=entire_ws_border if row_index == min_row else current.top,
-            bottom=entire_ws_border if row_index == max_row else current.bottom,
-            left=entire_ws_border if col_index == min_col else current.left,
-            right=entire_ws_border if col_index == max_col else current.right
-        )
-
-            
-                    
-            for row in ws.iter_rows(min_row=6, max_row=6, min_col=3, max_col=7):
-                for cell in row:
-                    current = cell.border
-                    cell.border = Border(
-                        top=current.top,
-                        bottom=Side(style='medium'),  # Only change bottom keep thick border around everything
-                        left=current.left,
-                        right=current.right
-                    )
-
-            
-            degreeviewpath='/Users/shalevwiden/Downloads/Projects/degreeview'
-            semesterworkbook.save(semeseter_excel_filename)
-            print(f'Saved workbook at {semeseter_excel_filename}')
-    
-    # dark theme now:
-
-
-        
-    def make_darktheme_excel_files(self):
-        '''
-        This uses the result of the scrape semester data function to make an excel file out of it.
-        For the CSV files I did them fully vertical. For these excel files, since I can control what columns and cells things are going,
-        I want it to be more of a horizontal feel. 
-
-        '''
-        for i in range(1,len(self.schooldata)):
-            
-            key=list(self.schooldata)[i]
-            degreename=key
-            degreename=degreename.replace('/','-').strip()
-
-            print(f'Starting process for {degreename} excel file')
-            
-            # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[key]
-
-            
-            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
-            # now use this to write to csv files.
-            # I can actually finish this fast
-            
-            degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
-            # can change this quite easily
-            # theres spaces which isnt great. But theres also spaces in the degreename. 
-
-
-            degreenamecleaned=degreename.replace(' ','').lower().split('(')
-            degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
-            degreenamecleaned=degreenamecleaned.replace(')','')
-
-            # change the name of it here
-            dark_semeseter_excel_filename=os.path.join(degreefolderpath,f'{degreenamecleaned}-darktheme-semesterfile.xlsx')
-
-            totalhours=0
-            numberofsemesters=len(semesterdictionary)
-            excelobject=[]                        
-            print(f'Excel object has been reset to {len(excelobject)}\n\n\n')
-
-
-
-            '''
-            Use Font and OpenPyXL to create nicely formatted tabular data
-            '''
-
-            semesterworkbook=Workbook()
-            # gets the default worksheet
-            ws=semesterworkbook.active
-
-
-
-                
-            titlefont=Font(size=26,bold=True,color='ffffff')
-
-            headingborder=Border(bottom=Side(style='mediumDashDot',color='ffffff'))
-
-            headingsfonts=Font(size=18,bold=True,color='ffffff')
-            subheadingsfont=Font(size=17,bold=True,color='ffffff')
-            # lighter burnt orange
-            utnamefont=Font(size=19, color='ff9630', name='Georgia', bold=True)
-            # update later
-            semesterfont=Font(bold=True,size=18,color='ffffff')
-
-            # applied to the actual semester data. 
-            datafont=Font(size=15,name='Helvetica',color='ffffff')
-
-
-            leftalign=Alignment(horizontal='left')
-            centeralign=Alignment(horizontal='center')
-            
-
-
-
-            # total height of 40
-
-
-            # first row after title that is. Start at row 3 since rows 1 and 2 were merged
-            firstrow=[f'{degreename}',"","","",f'{self.schoolname}',"The University of Texas at Austin"]
-                
-            # colindex is like i            
-            # start= 1 means start at the first column
-            for col_index, value in enumerate(firstrow, start=1):
-                # adjust row here
-                headingcell=ws.cell(row=3, column=col_index, value=value)
-                # use.font to assign the font I see
-                if col_index==6:
-
-                    headingcell.font=utnamefont
-                    headingcell.border=headingborder
-                elif col_index==1:
-                    headingcell.font=headingsfonts
-                    headingcell.border=headingborder
-                    headingcell.alignment=centeralign
-                else:
-                    headingcell.font=headingsfonts
-                    headingcell.border=headingborder
-
-                    # print(datacell.font.size)
-
-
-            blankrow=['','','','','','','','']
-            # appends to the next empty row. Like writer.writerow(['']) for csvs
-            ws.append(blankrow)
-            
-                        
-            subheadingrow=['','Course Code','Course Name','Hours','Category','Upper/Lower Division']
-            ws.append(subheadingrow)
-            # now apply styles
-            for cell in ws[5]:
-                cell.font=subheadingsfont
-                cell.alignment=leftalign
-
-
-            # now the meat of the file, the data
-            
-
-
-
-            # for each semester
-            rowcount=0
-            for semesternum in range(numberofsemesters):
-                semester=list(semesterdictionary)[semesternum]
-                # semester courses is a dictionary of its own as well
-                semestercourses=semesterdictionary[semester]
-                # that means the semester will be on the first row
-                excelobject.append([f'{semester}   '])
-                rowcount+=1
-                for coursenameindex in range(len(semestercourses)):
-
-                    coursename=list(semestercourses)[coursenameindex]
-                    # if its NOT a list of lists, ie, a normal course entry
-                    if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-                        coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                        excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
-                        rowcount+=1
-                        if coursehours!='':
-                            totalhours+=int(coursehours)
-                    
-                    else:
-                        listofcourses=semestercourses[coursename]
-                        for i in range(len(listofcourses)):
-                            coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                            excelobject.append(["",coursecode,coursename,coursehours,coursecategory,upperdivstatus])
-                            rowcount+=1
-
-                            if coursehours!='':
-                                totalhours+=int(coursehours)
-
-
-                # line between semesters
-                excelobject.append(['','','','',''])
-                rowcount+=1
-
-            # adding to excel file
-            # rowval is important for adding rows in order
-            rowval=6
-
-            for rowentry in range(len(excelobject)):
-                # update it here so it updates by row not column...although
-                rowval += 1
-                        # start at column one, and then remember the padding rows are added later. 
-                for col_index, value in enumerate(excelobject[rowentry], start=1):
-                    # change alignnment here. 1 indexed not 0
-                    datacell = ws.cell(row=rowval, column=col_index, value=value)
-
-                    if col_index==1:
-                        # use.font to assign the font I see
-                        datacell.font=semesterfont
-                        datacell.alignment=Alignment(horizontal='right')
-
-                    elif col_index in [2,3]:
-                        datacell.font=datafont
-                        datacell.alignment=leftalign
-                    elif col_index==4: #hourscol
-                        datacell.font=datafont
-                        datacell.alignment=centeralign
-                    elif col_index in [5,6]:
-                        datacell.font=datafont
-                        datacell.alignment=leftalign
-                    
-            
-                       
-
-
-            print(f'len excel object={len(excelobject)}, ie number of datarows')
-            
-
-# -----------------------------end data stuff --------------------------------------------------------
-            ws.append(blankrow)
-            totalhoursrow=['','','',f'Total Hours: {totalhours}','','']
-
-            # this lastrow value is actually used for the last TWO rows
-            lastrowindex=rowcount+6
-            for col_index, value in enumerate(totalhoursrow, start=1):
-                
-                # use.font to assign the font I see
-                cell=ws.cell(row=lastrowindex+1, column=col_index, value=value)
-                # FF=full opacity 
-                cell.font=datafont
-
-           
-            lastrow=['DegreeView','','','','','degreeviewsite.com']
-            lastrowindex+=2 # 6 rows before we start data stuff. Then rowcount is the amount of data. 
-
-            # change the logo colors here
-            for col_index, value in enumerate(lastrow, start=1):
-                
-                # use.font to assign the font I see
-                lastcell=ws.cell(row=lastrowindex, column=col_index, value=value)
-                # FF=full opacity 
-                if col_index==6:
-                    # site link cell
-                    lastcell.font=Font(name='Roboto',size=19, bold=True, color='e7e9eb')
-                    lastcell.alignment=Alignment(horizontal='left',vertical='bottom')
-
-                else:
-                    # logo cell
-                    lastcell.font=Font(name='Barlow',size=30, bold=True, color='a9d2f8')
-                    lastcell.alignment=Alignment(horizontal='left',vertical='center')
-
-                # one more cause now we wrote the actual last row there
-                ws.row_dimensions[lastrowindex+1].height = 50
-
-
-
-            # ---------------formatting stuff------------------
-            
-            # add padding
-            
-            
-            ws.insert_rows(1)      #new row
-            ws.insert_cols(1)       # new col
-
-            # ws.columns gets columns. Each column is a tuple of cells
-            for column_cells in ws.columns:
-                # max function gets the max in a list. Same for min
-                # generator must be in ()
-                cellwidthgenerator=(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
-                colwidth = max(cellwidthgenerator)
-
-                firstcell=column_cells[0]
-                # every cell has a .column_letter attribute
-                col_letter = firstcell.column_letter
-                col_index=column_index_from_string(col_letter)
-                # scale the width factor to make the columns wider
-                if col_index==7:  
-                    # make the UT Austin column alot wider
-                    ws.column_dimensions[col_letter].width = int(colwidth)*2
-                elif col_index==6:
-                    ws.column_dimensions[col_letter].width = int(colwidth)*1.5
-                elif col_index==5:
-                    ws.column_dimensions[col_letter].width=int(colwidth)*.7
-                elif col_index==3:
-                    ws.column_dimensions[col_letter].width=int(colwidth)*2
-                   
-                # the semester column
-                elif col_index==2:
-                    ws.column_dimensions[col_letter].width=int(colwidth)*1.26
-            
-
-                else:
-                    ws.column_dimensions[col_letter].width = int(colwidth)*1.2
-                
-
-
-
-            # set sizes for the padding row and column. Units of default font which is usually Arial it seems
-
-            ws.column_dimensions['A'].width=15
-            ws.column_dimensions['H'].width=15
-            ws.row_dimensions[1].height=25
-            ws.row_dimensions[lastrowindex+2].height=25
-
-            # ------------------------------------TITLE STUFF-------------------------------------------
-
-            # create a merged 'Degree view and degreename header can't lie".
-            ws.merge_cells('B2:G3')    
-            ws.row_dimensions[2].height = 30
-            ws.row_dimensions[3].height = 30
-            mergedrowcontent=f'{degreename} Sample Semester Layout'
-            
-            # refer to top left of merged cells
-            titlecell=ws['B2']
-            titlecell.value=mergedrowcontent
-            titlecell.alignment = Alignment(horizontal='center', vertical='center')
-            titlecell.font=titlefont
-
-        # ------------------------ CONTINUE FORMATTING STUFF -----------------------------------------------------
-            # apply a border around the entire file -----------------------------------------------------------------------------
-
-            # make it responsive based on the amount of data
-            # remove the +1 here to have no border
-            rows = list(ws['B2':f'G{lastrowindex+1}'])
-            min_row = 2
-            max_row = lastrowindex+1
-
-            min_col = column_index_from_string('B')  
-            max_col = column_index_from_string('G') 
-
-            
-            # where border code used to be
-            
-            # make the entire worksheet a color:
-            backgroundcolor=PatternFill(fill_type="solid", start_color="2e4053") #end_color='0000FF' fill_type="gray125" or linear later
-
-            # have the background be like a padding. 
-            for row in ws.iter_rows(min_row=1, max_row=lastrowindex+2, min_col=1, max_col=8):
-                for cell in row:
-                    cell.fill = backgroundcolor
-            
-            # reverse the background for cells with content:
-
-            darkfill=PatternFill(fill_type="solid", start_color="273746")
-            # re-add gridline borders:
-
-            gridline_border = Border(
-                # make gridline border not exactly white
-                left=Side(border_style="thin", color="c9d8e7"),
-                right=Side(border_style="thin", color="c9d8e7"),
-                top=Side(border_style="thin", color="c9d8e7"),
-                bottom=Side(border_style="thin", color="c9d8e7")
-            )
-
-            for row in ws.iter_rows(min_row=min_row, max_row=max_row, min_col=min_col, max_col=max_col):
-                for cell in row:
-                    cell.fill = darkfill
-                    cell.border=gridline_border
-            
-            # this is the border that will go around everything.
-            # Use logic to only add border to the cells on the outside.
-
-            entire_ws_border=Side(style='thick',color='e2effd')
-            
-            for row_index, row in enumerate(rows, start=min_row):
-                for col_index, cell in enumerate(row, start=min_col):
-                    current = cell.border
-
-                    
-                    # remember we defined side. and you do Border(Side=style))
-                    '''
-                    This is the final peice of the puzzle that adds borders.
-                    If sides if empty, then
-                    cell.border = Border(), which defines no borders. Normally it will be entire_ws_border border preset. 
-                    '''
-                    cell.border = Border(
-            top=entire_ws_border if row_index == min_row else current.top,
-            bottom=entire_ws_border if row_index == max_row else current.bottom,
-            left=entire_ws_border if col_index == min_col else current.left,
-            right=entire_ws_border if col_index == max_col else current.right
-        )
-
-            
-            # where is this one?
-            # this is like the subheading border
-            for row in ws.iter_rows(min_row=6, max_row=6, min_col=3, max_col=7):
-                for cell in row:
-                    current = cell.border
-                    cell.border = Border(
-                        top=current.top,
-                        bottom=Side(style='medium',color='e2effd'),  # Only change bottom keep thick border around everything
-                        left=current.left,
-                        right=current.right
-                    )
-
-            
-            degreeviewpath='/Users/shalevwiden/Downloads/Projects/degreeview'
-            semesterworkbook.save(dark_semeseter_excel_filename)
-            print(f'Saved workbook at {dark_semeseter_excel_filename}')
-    
-
-
-
-    def makehorizontalexcelfiles(self):
-        '''Maybe do this later. With Excel it shouldnt be toooo hard'''
-        
-        pass
     def make_mermaid_files(self):
 
 # we start at 1 because 0 is the school name 
@@ -1125,7 +276,8 @@ class makeSemesterFiles:
 
             # establish classes
             title_class_name='title_class'
-            title_class='   \n  classDef title_class fill:#fff,stroke:#ffffff,stroke-width:5px,color:#ffffff,font-size:26px,font-weight:bold,width:260px,padding:20px,text-align:center,rx:20,ry:20'
+            hiddencolor='#fff'
+            title_class=f'   \n  classDef title_class fill:{hiddencolor},stroke:{hiddencolor},stroke-width:5px,color:{hiddencolor},font-size:26px,font-weight:bold,width:260px,padding:20px,text-align:center,rx:20,ry:20'
 
 
             diagramcode+=title_class
@@ -1463,20 +615,31 @@ class makeSemesterFiles:
 
             def rendermmd(createdpath,savepath,configpath):
                 # adding a background here actually works
+                # add this for dolphin: "--backgroundColor", "#a3dbf1ff"
 
                 subprocess.run(["mmdc", "-i", createdpath, "-o", savepath,"--configFile",configpath,"--scale=3"])
             
 
             # create both svg and png
-            rendermmd(createdpath=mermaid_file_path,savepath=originaltheme_png_savefilepath,configpath=lightthemeconfig)
-            rendermmd(createdpath=mermaid_file_path,savepath=svg_savefilepath,configpath=lightthemeconfig)
+            def create_dolphin():
+                rendermmd(createdpath=mermaid_file_path,savepath=originaltheme_png_savefilepath,configpath=lightthemeconfig)
+
+                create_dolphin_png(imagepath=originaltheme_png_savefilepath,savepath=originaltheme_png_savefilepath)
+            # create_dolphin()
+            def createstare():
+                rendermmd(createdpath=mermaid_file_path,savepath=originaltheme_png_savefilepath,configpath=lightthemeconfig)
+
+                create_stare_png(imagepath=originaltheme_png_savefilepath,savepath=originaltheme_png_savefilepath)
+
+            createstare()
+            # create_dolphin_png(imagepath=originaltheme_png_savefilepath,savepath=originaltheme_png_savefilepath)
 
             print(f'Created {mermaid_file_path} and saved it at {originaltheme_png_savefilepath}')
             print(f'degreename is {degreename}')
 
             
 
-    def create_mmd_pdfs(self):
+    def create_mmd_pdfs(self,savename):
 
         '''
         This takes the pdfs or svgs created by the above function, and turns them into stylized pdfs.
@@ -1570,7 +733,13 @@ class makeSemesterFiles:
                     # to actually use colors
                     # c.setFillColor(Color(r, g, b))
                     # Text color
-                    c.setFillColor(Color(0, 0, 0))
+                    if 'dolphin' in savename:
+                            rich_navy = Color(0/255, 0/255, 128/255)
+
+                            c.setFillColor(rich_navy)
+                            
+                    else:
+                        c.setFillColor(Color(0, 0, 0))
 
                     c.setFont("Helvetica-Bold", 67)    
 
@@ -1595,7 +764,7 @@ class makeSemesterFiles:
 
 
                     x_center1=(width - text_width1) / 2
-                    c.drawString(x_center1, height-155, headingtext1)
+                    c.drawString(x_center1, height-200, headingtext1)
 
                     c.setFont("Helvetica-Bold", 67)    
 
@@ -1611,13 +780,11 @@ class makeSemesterFiles:
 
 
                     # create white rectangle in main overlay. 
-                    c.setFillColorRGB(1, 1, 1)  
-                    c.rect(0, 0, width, 350, fill=1, stroke=0) 
-
+                   
                     
 
-                    c.drawImage(self.logopath, 25, 9, width=logowidth, height=logoheight)
-                    c.drawImage(self.websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
+                    
+                    
                     # draw the link path
 
                     # draw the link as well in the bottom
@@ -1661,7 +828,7 @@ class makeSemesterFiles:
 
                         # output path is the final pdf file which will be downloaded
 
-                finaloutputpath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterlayout.pdf')
+                finaloutputpath=os.path.join(diagram_folder,f'{degreenamecleaned}{savename}.pdf')
 
                 merge_diagram_and_overlay_withlegend(pdfpath=originaltheme_pdf_file,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=mainoverlaypath,outputpath=finaloutputpath)
 
@@ -1676,7 +843,7 @@ class makeSemesterFiles:
                 delete_unnessary_files()
 
                 # -----------------MAKE EMPTY NODES HERE
-                activateemptynodes=True
+                activateemptynodes=False
                 if activateemptynodes:
 
                     emptynodesfolder=os.path.join(diagram_folder,'emptynodesfolder')
@@ -1723,8 +890,13 @@ class makeSemesterFiles:
                         # to actually use colors
                         # c.setFillColor(Color(r, g, b))
                         # Text color
-                        c.setFillColor(Color(0, 0, 0))
+                        if 'dolphin' in savename:
+                            rich_navy = Color(0/255, 0/255, 128/255)
 
+                            c.setFillColor(rich_navy)
+
+                        else:
+                            c.setFillColor(Color(0, 0, 0))
                         c.setFont("Helvetica-Bold", 39)    
 
                         maxwidth=width-90
@@ -1801,7 +973,7 @@ class makeSemesterFiles:
 
             
 
-    def create_oddnumbered_mmd_pdfs(self):
+    def create_oddnumbered_mmd_pdfs(self,savename):
 
         '''
         This takes the pdfs or svgs created by the above function, and turns them into stylized pdfs.
@@ -1898,7 +1070,17 @@ class makeSemesterFiles:
                     # to actually use colors
                     # c.setFillColor(Color(r, g, b))
                     # Text color
-                    c.setFillColor(Color(0, 0, 0))
+                    
+                    # for dolphin:
+
+                    if 'dolphin' in savename:
+                        rich_navy = Color(0/255, 0/255, 128/255)
+
+                        c.setFillColor(rich_navy)
+                    else:
+                        c.setFillColor(Color(0, 0, 0))
+
+
 
                     c.setFont("Helvetica-Bold", 67)    
 
@@ -1945,14 +1127,9 @@ class makeSemesterFiles:
 
 
                     # create white rectangle in main overlay. 
-                    c.setFillColorRGB(1, 1, 1)  
-                    c.rect(0, 0, width, 350, fill=1, stroke=0) 
+                   
 
                     
-
-                    c.drawImage(self.logopath, 25, 9, width=logowidth, height=logoheight)
-                    c.drawImage(self.websiteurl_img_path,width-(websiteurlwidth*1.06) , 26, width=websiteurlwidth, height=websiteurlheight)
-                    # draw the link path
 
                     # draw the link as well in the bottom
 
@@ -1995,7 +1172,7 @@ class makeSemesterFiles:
 
                         # output path is the final pdf file which will be downloaded
 
-                finaloutputpath=os.path.join(diagram_folder,f'{degreenamecleaned}-semesterlayout.pdf')
+                finaloutputpath=os.path.join(diagram_folder,f'{degreenamecleaned}{savename}.pdf')
 
                 merge_diagram_and_overlay_withlegend(pdfpath=originaltheme_pdf_file,mergedlegendpdfpath=mergedlegendpdf_path, mainoverlaypath=mainoverlaypath,outputpath=finaloutputpath)
 
@@ -2010,7 +1187,7 @@ class makeSemesterFiles:
                 delete_unnessary_files()
 
                 # -----------------MAKE EMPTY NODES HERE
-                activateemptynodes=True
+                activateemptynodes=False
                 if activateemptynodes:
 
                     emptynodesfolder=os.path.join(diagram_folder,'emptynodesfolder')
@@ -2142,170 +1319,6 @@ class makeSemesterFiles:
 
 
 
-
-
-
-
-    def get_universitywide_stats(self):
-        '''This makes the csv file. Then I'll still have to scrape data and make visualizations.'''
-
-        degreenamelist=[]
-        semestercountlist=[]
-        totalhourslist=[]        
-        numberofcourseslist=[]
-
-        totalmajorhourslist=[]
-        numberofmajorcourses=[]
-
-        for i in range(1,len(self.schooldata)):
-
-        # in this entire folder we are doing things by degree.
-
-
-            key=list(self.schooldata)[i]
-            degreename=key
-            degreename=degreename.replace('/','-').strip()
-
-            print(f'Getting stats for {degreename}')
-
-            degreenamelist.append(degreename)
-            
-            # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[key]
-
-            
-            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
-            # now use this to write to csv files.
-            # I can actually finish this fast
-            
-            universitystatsfolder="/Users/shalevwiden/Downloads/Projects/degreeview/stats"
-            
-
-            numberofsemesters=len(semesterdictionary)
-            semestercountlist.append(numberofsemesters)
-
-            totalhours=0
-
-            coursecount=0
-            majorcoursecount=0
-
-            majorhourscount=0
-
-            for semesternum in range(numberofsemesters):
-                semester=list(semesterdictionary)[semesternum]
-                # semester courses is a dictionary of its own as well
-                semestercourses=semesterdictionary[semester]
-                # that means the semester will be on the first row
-                
-                for coursenameindex in range(len(semestercourses)):
-
-                    coursename=list(semestercourses)[coursenameindex]
-                    # if its NOT a list of lists, ie, a normal course entry
-                    if len(semestercourses[coursename])==4 and not isinstance(semestercourses[coursename][0],list):
-                        coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
-                        
-                        coursecount+=1
-                        if coursehours!='':
-                            totalhours+=int(coursehours)
-                            if 'major' in coursecategory.lower():
-                                majorcoursecount+=1
-                                majorhourscount+=int(coursehours)
-                    
-                    else:
-                        listofcourses=semestercourses[coursename]
-                        for i in range(len(listofcourses)):
-                            coursecode, coursehours, upperdivstatus, coursecategory=listofcourses[i]
-                            coursecount+=1
-
-                            if coursehours!='':
-                                totalhours+=int(coursehours)
-                                if 'major' in coursecategory.lower():
-                                    majorcoursecount+=1
-                                    majorhourscount+=int(coursehours)
-
-            # append all the data FOR ONE DEGREE to the lists which are FOR THE WHLE SCHOOl
-            totalhourslist.append(totalhours)
-            numberofcourseslist.append(coursecount)
-            totalmajorhourslist.append(majorhourscount)
-            numberofmajorcourses.append(majorcoursecount)
-
-
-
-
-        utstatsfilepath=os.path.join(universitystatsfolder,'universityoftexas_stats.csv')
-
-        with open(utstatsfilepath,'a') as utstatsfile:
-            writer=csv.writer(utstatsfile)
-
-            writer.writerow([f'{self.schoolname}'])
-
-            # simply write all of the data
-            # degreename, semestercount, totalhours, numberofcourses, majorhours, majorcourses
-            for datarow in zip(degreenamelist,semestercountlist,totalhourslist,totalmajorhourslist,numberofcourseslist,numberofmajorcourses):
-                writer.writerow(datarow)
-            # cereates a blank line
-            writer.writerow([])
-
-
-
-            # can change this quite easily
-            '''
-            This is used to perform highest number of major hours and normal hours in datavisualizations.py
-            '''
-        return [degreenamelist,totalhourslist,totalmajorhourslist]
-
-
-    def get_schoolspecific_stats():
-        for i in range(1,len(self.schooldata)):
-
-        # in this entire folder we are doing things by degree.
-
-
-            key=list(self.schooldata)[i]
-            degreename=key
-            degreename=degreename.replace('/','-').strip()
-
-            print(f'Getting stats for {degreename}')
-            
-            # kept as sugg link as continuity from make_makorcourses_csvs
-            sugglink=self.schooldata[key]
-
-            
-            semesterdictionary=getallcourses_splitbysemester(suggcourse_link=sugglink)
-            
-            school_stats_folder=os.path.join(self.schoolfolderpath,f'{self.schoolname}stats')
-            if not os.path.exists(school_stats_folder):
-                os.mkdir(school_stats_folder) 
-
-
-    def get_degree_per_school_counts(self):
-        # returns a 2 item list
-        return [self.schoolname,len(self.schooldata)-1]
-
-
-    def get_degree_stats():
-        '''
-        Make txt files with this so I can easily read it and place it on the website. 
-        '''
-        pass
-    def make_mpl_graphs():
-        ''' Make some matplotlib graphs for each Degree as well.
-            For organization
-        '''
-        pass
-
-
-
-
-
-
-
-
-
-
-
-
-
 # archdata testing
 def archtesting():
     archdata=theasset[0]
@@ -2322,70 +1335,27 @@ def archtesting():
     print('Getting the attribute:\n')
     print(getattr(architecturefiles,'schoolname'))
     print()
-    architecturefiles.upload_to_database()
-# archtesting()
+
+    # architecturefiles.make_mermaid_files()
+    # architecturefiles.create_mmd_pdfs(savename='-tystare')
+    # architecturefiles.create_oddnumbered_mmd_pdfs('-tystare')
 
 
-def make_universitywide_stats(theasset):
 
-    universitystatsfolder="/Users/shalevwiden/Downloads/Projects/degreeview/stats"
-    # if its deleted this will remake it
+    architecturefiles.make_mermaid_files()
+    architecturefiles.create_mmd_pdfs(savename='-tystare')
+    architecturefiles.create_oddnumbered_mmd_pdfs(savename='-tystare')
 
-    if not os.path.exists( universitystatsfolder):
-        os.mkdir( universitystatsfolder) 
+    dolphin=False
+    if dolphin:
 
-    utstatsfilepath=os.path.join(universitystatsfolder,'universityoftexas_stats.csv')
+        architecturefiles.make_mermaid_files()
+        architecturefiles.create_mmd_pdfs(savename='-dolphinocean')
+        architecturefiles.create_oddnumbered_mmd_pdfs('-dolphinocean')
 
-
-    # this will rewrite it everytime I start the file. Clearing it
-
-
-    with open(utstatsfilepath,'w') as utstatsfile:
-        writer=csv.writer(utstatsfile)
-        writer.writerow(['Degree Stats','','','','','The University of Texas at Austin'])
-        writer.writerow(['','','','','',''])
+archtesting()
 
 
-        writer.writerow(['Degree Name','Number of Semesters','Total Hours','Total Major Hours','Number of Classes',"Number of Major Classes"])
-        writer.writerow([])
-
-    for schooldict in theasset:
-        schoolobject=makeSemesterFiles(schooldata=schooldict)
-        # this appends to the csv file
-        schoolobject.get_universitywide_stats()
-    
-    # now add the closing row
-    with open(utstatsfilepath,'a') as utstatsfile:
-        writer=csv.writer(utstatsfile)
-        writer.writerow(['','','','','',''])
-
-        writer.writerow(['DegreeView','','','','',''])
-    
-    print('Hopefully made stats folder')
-
-def make_big_datalist(theasset):
-    '''
-    This is used to find highest number of major hours and normal hours for a degree
-    '''
-    biglist=[]
-    for schooldict in theasset:
-        schoolobject=makeSemesterFiles(schooldata=schooldict)
-        degreenamelist, totalhours,totalmajorhours=schoolobject.get_universitywide_stats()
-        biglist.append([degreenamelist,totalhours,totalmajorhours])
-    return biglist
-# print(make_big_datalist(theasset=theasset))
-
-
-def makecountlist(theasset):
-    '''
-    This counts the number of degree programs per school, allowing you to make a pie chart. 
-    '''
-    countlist=[]
-    for schooldict in theasset:
-        schoolobject=makeSemesterFiles(schooldata=schooldict)
-        count=schoolobject.get_degree_per_school_counts()
-        countlist.append(count)
-    print(countlist)
 
 
 def unpacktheasset_into_makefilesclass(theasset):
@@ -2398,7 +1368,6 @@ def unpacktheasset_into_makefilesclass(theasset):
         schoolobject.upload_to_database()   
        
     
-unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 def runentirefile(theasset):
@@ -2407,12 +1376,17 @@ def runentirefile(theasset):
         schoolobject=makeSemesterFiles(schooldata=schooldict)
         
 
+
+
         schoolobject.make_mermaid_files()
-        schoolobject.create_mmd_pdfs()
-        schoolobject.create_oddnumbered_mmd_pdfs()
+        schoolobject.create_mmd_pdfs(savename='-tystare')
+        schoolobject.create_oddnumbered_mmd_pdfs(savename='-tystare')
+
+        dolphin=False
+        if dolphin:
+
+            schoolobject.make_mermaid_files()
+            schoolobject.create_mmd_pdfs(savename='-dolphinocean')
+            schoolobject.create_oddnumbered_mmd_pdfs(savename='-dolphinocean')
 
 runentirefile(theasset=theasset)
-# for a later document where I do this same thing but replicated. For this I will simply just modify the "make_majorcourses_csvs.py"
-class makeMajorFiles:
-    def __init__(self):
-        pass
