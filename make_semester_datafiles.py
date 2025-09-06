@@ -9,6 +9,7 @@ import random
 
 import csv
 import openpyxl
+import json
 
 
 
@@ -72,8 +73,11 @@ if __name__=='__main__':
 
 # this script is gonna be.. huge. Yeah this is the behemoth one
 # the asset is a LIST of dictionaries
-from theassetcontainment import theasset
 
+with open('theassetcontainment.json') as assetjson:
+    theasset=json.load(assetjson)
+
+        
 from scrapesemesterdata import getallcourses_splitbysemester
 
 
@@ -1075,6 +1079,7 @@ class makeSemesterFiles:
         '''Maybe do this later. With Excel it shouldnt be toooo hard'''
         
         pass
+    
     def make_mermaid_files(self):
 
 # we start at 1 because 0 is the school name 
