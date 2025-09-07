@@ -325,11 +325,11 @@ if __name__=="__main__":
     print('Calling getallcourses_splitbysemester')
    
     print('Economics:')
-    economicslink='https://catalog.utexas.edu/undergraduate/natural-sciences/degrees-and-programs/bs-statistics-and-data-sciences/sugg-stat-data-sci-bssds/'
-    econdict=getallcourses_splitbysemester(suggcourse_link=economicslink)
-    for currentsemester in econdict:
-        print(f'Sem:{currentsemester}:\n{econdict[currentsemester]}\n')
-        print(f'len of {currentsemester}: {len(econdict[currentsemester])}')
+    testlink='https://catalog.utexas.edu/undergraduate/natural-sciences/degrees-and-programs/bs-statistics-and-data-sciences/sugg-stat-data-sci-bssds/'
+    testdict=getallcourses_splitbysemester(suggcourse_link=test)
+    for currentsemester in testdict:
+        print(f'Sem:{currentsemester}:\n{testdict[currentsemester]}\n')
+        print(f'len of {currentsemester}: {len(testdict[currentsemester])}')
 
 
 

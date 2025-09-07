@@ -230,9 +230,6 @@ if __name__=='__main__':
     print('\n\n')
 
 
-def getmajorsnames():
-    pass
-
 # this is just like a slow crawl to get all of the suggested links but we can do it for sure lol. 
 
 
