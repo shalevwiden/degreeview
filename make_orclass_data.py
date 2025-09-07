@@ -78,7 +78,7 @@ with open('theassetcontainment.json') as assetjson:
     theasset=json.load(assetjson)
 
         
-from scrapesemesterdata import getallcourses_splitbysemester
+from scrapedata_orclasses import getallcourses_splitbysemester
 
 
 class makeSemesterFiles:
@@ -259,7 +259,7 @@ class makeSemesterFiles:
             degreenamecleaned=degreenamecleaned[0]+"-"+degreenamecleaned[-1]
             degreenamecleaned=degreenamecleaned.replace(')','')
 
-            semestercsvfilename=os.path.join(degreefolderpath,f'{degreenamecleaned}-semestercsvfile.csv')
+            semestercsvfilename=os.path.join(degreefolderpath,f'{degreenamecleaned}-semestercsvfilefull.csv')
 
             totalhours=0
             numberofsemesters=len(semesterdictionary)
@@ -294,7 +294,7 @@ class makeSemesterFiles:
                             coursecode, coursehours, upperdivstatus, coursecategory=semestercourses[coursename]
                             csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
                             rowcount+=1
-                            if coursehours!='':
+                            if coursehours!='' and "or" not in coursename[0:2]:
                                 totalhours+=int(coursehours)
                         
                         else:
@@ -304,8 +304,12 @@ class makeSemesterFiles:
                                 csvobjectdict[rowcount]=["",coursecode,coursename,coursehours,coursecategory,upperdivstatus]
                                 rowcount+=1
 
-                                if coursehours!='':
+                                if coursehours!='' and "or" not in coursename[0:2]:
                                     totalhours+=int(coursehours)
+                                else:
+                                    print(f'{coursename} not approved')
+                                    print(f'Coursehours" {coursehours} ')
+
 
 
                     # line between semesters
@@ -1084,9 +1088,9 @@ class makeSemesterFiles:
                 mainbackgroundcolor="004D26",
                 paddingbackgroundcolor="007F3D",
                 datafontname="Helvetica Neue",
-                titlefontname="Calibri",
+                titlefontname="Playfair Display",
                 logofontname="Raleway",
-                logocolor="b6d9ea"
+                logocolor="2F3E46"
     ):
 
 
@@ -1124,7 +1128,7 @@ class makeSemesterFiles:
             degreenamecleaned=degreenamecleaned.replace(')','')
 
             # change the name of it here
-            savepath=os.path.join(degreefolderpath,f'{degreenamecleaned}-greenthemesemesters.xlsx')
+            dark_semeseter_excel_filename=os.path.join(degreefolderpath,f'{degreenamecleaned}-darktheme-semesterfile.xlsx')
 
             totalhours=0
             numberofsemesters=len(semesterdictionary)
@@ -1395,12 +1399,12 @@ class makeSemesterFiles:
             # where border code used to be
             
             # make the entire worksheet a color:
-            paddingfill=PatternFill(fill_type="solid", start_color=paddingbackgroundcolor) #end_color='0000FF' fill_type="gray125" or linear later
+            paddingbackgroundcolor=PatternFill(fill_type="solid", start_color=paddingbackgroundcolor) #end_color='0000FF' fill_type="gray125" or linear later
 
             # have the background be like a padding. 
             for row in ws.iter_rows(min_row=1, max_row=lastrowindex+2, min_col=1, max_col=8):
                 for cell in row:
-                    cell.fill = paddingfill
+                    cell.fill = paddingbackgroundcolor
             
             # reverse the background for cells with content:
 
@@ -1458,8 +1462,8 @@ class makeSemesterFiles:
 
             
             degreeviewpath='/Users/shalevwiden/Downloads/Projects/degreeview'
-            semesterworkbook.save(savepath)
-            print(f'Saved workbook at {savepath}')
+            semesterworkbook.save(dark_semeseter_excel_filename)
+            print(f'Saved workbook at {dark_semeseter_excel_filename}')
     
 
 
@@ -2789,22 +2793,21 @@ def unpacktheasset_into_makefilesclass(theasset):
     
     for schooldict in theasset:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
-        # schoolobject.upload_to_database()   
+        schoolobject.upload_to_database()   
        
     
-# unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
 def runentirefile(theasset):
+    schooldict=theasset[10]
+    schoolobject=makeSemesterFiles(schooldata=schooldict)
+    
 
-    for schooldict in theasset:
-        schoolobject=makeSemesterFiles(schooldata=schooldict)
-        
+    # schoolobject.make_mermaid_files()
+    # schoolobject.create_mmd_pdfs()
+    # schoolobject.create_oddnumbered_mmd_pdfs()
+    schoolobject.make_excel_files()
 
-        schoolobject.make_greentheme_excel_files()
 
 runentirefile(theasset=theasset)
 # for a later document where I do this same thing but replicated. For this I will simply just modify the "make_majorcourses_csvs.py"
-class makeMajorFiles:
-    def __init__(self):
-        pass

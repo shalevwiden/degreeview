@@ -6,6 +6,7 @@ import sys
 import os
 
 import csv
+import json
 
 # good to check everythings working with the venv:
 if __name__=='__main__':
@@ -14,8 +15,8 @@ if __name__=='__main__':
     print(f'\nthe python version being used is:{sys.executable}\n')
 
 
-from theassetcontainment import theasset
-
+with open('theassetcontainment.json') as assetjson:
+    theasset=json.load(assetjson)
 
 # print(len(theasset))
 
