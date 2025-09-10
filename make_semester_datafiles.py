@@ -64,7 +64,7 @@ from stareoverlay import create_stare_png
 exceltemplatespath = Path("/Users/shalevwiden/Downloads/Projects/dvwebsitecreation/sourcefiles/pythonfunctions")
 sys.path.append(str(exceltemplatespath))
 
-from excel_templates import make_checkerboardfile, make_excelfile
+from excel_templates import make_degreeplan_excel_files 
 
 
 
@@ -84,6 +84,7 @@ if __name__=='__main__':
 with open('theassetcontainment.json') as assetjson:
     theasset=json.load(assetjson)
 
+
         
 from scrapesemesterdata import getallcourses_splitbysemester
 
@@ -98,6 +99,7 @@ class makeSemesterFiles:
     # school data is like theasset[0], which is what each class object takes
     def __init__(self,schooldata):
 
+        self.universityname='The University of Texas at Austin'
         # you can print every attribute in the class which is the superpower tho. 
 
         # use self to make things an attribute
@@ -127,10 +129,19 @@ class makeSemesterFiles:
         # this might have to change later lol
         self.websiteurl_img_path='/Users/shalevwiden/Downloads/Projects/dvwebsitecreation/logo_design/websiteurl.png'
 
+        self.make_degreeplan_excel_files=make_degreeplan_excel_files 
+
+        self.configsfolder='/Users/shalevwiden/Downloads/Projects/dvwebsitecreation/sourcefiles/Excelfile_configs'
     def __str__(self):
         returnstring=f'This is an object to create files for {self.schoolname}'
         return returnstring
-   
+    
+    def finishconfigpath(self,endofpath):
+        '''
+        This is for configs and is not related to saving the file at all
+        '''
+        return os.path.join(self.configsfolder,endofpath)
+    
     def upload_to_database(self):
         '''
         
@@ -1107,6 +1118,10 @@ class makeSemesterFiles:
             # I can actually finish this fast
             
             degreefolderpath=os.path.join(self.schoolfolderpath,degreename)
+            excelfolderpath=os.path.join(degreefolderpath,'excelfiles')
+            if not os.path.exists(excelfolderpath):
+                os.mkdir(excelfolderpath)
+
             # can change this quite easily
             # theres spaces which isnt great. But theres also spaces in the degreename. 
 
@@ -1117,27 +1132,45 @@ class makeSemesterFiles:
 
             # change the name of it here
 
+            originalconfig=self.finishconfigpath('originalconfig.json')
+            darkconfig=self.finishconfigpath('darkthemeconfig.json')
+            blueconfig=self.finishconfigpath('colorconfigs/bluetheme.json')
+            greenconfig=self.finishconfigpath('colorconfigs/green.json')
+            desertconfig=self.finishconfigpath('themedconfigs/desert.json')
+            greyscaleconfig=self.finishconfigpath('themedconfigs/greyscale.json')
+
+            oceanconfig=self.finishconfigpath('themedconfigs/oceantheme.json')
+            pastelconfig=self.finishconfigpath('themedconfigs/pasteltheme.json')
+            primarycolorsconfig=self.finishconfigpath('themedconfigs/primarycolors.json')
+            blackconfig=self.finishconfigpath('colorconfigs/black.json')
+
+            neonconfig=self.finishconfigpath('themedconfigs/neon.json')
+
+
+
             def make_themed_file(configpath,theme):
                 '''
                 This is the most modular it can be.
                 '''
                 filename=f'{degreenamecleaned}-{theme.lower().replace(' ','').strip()}.xlsx'
-                savepath=os.path.join(degreefolderpath,filename)
+                savepath=os.path.join(excelfolderpath,filename)
                 with open(configpath,'r') as configjson:
                     configjson=json.load(configjson)
                 
                 config={
                     "savepath":savepath,
-                    "semesterdictionary":semesterdictionary,
-                    "theme":theme,
+                    "universityname":self.universityname,
+                    "schoolname":self.schoolname,
+                    "degreename":degreename,
+                    "semesterdictionary":semesterdictionary
 
                 }
                 config.update(configjson)
 
                 self.make_degreeplan_excel_files(**config)
 
-    
 
+            make_themed_file(configpath=blueconfig,theme='bluetheme')
 
 
     def makehorizontalexcelfiles(self):
@@ -2471,15 +2504,15 @@ def unpacktheasset_into_makefilesclass(theasset):
 # unpacktheasset_into_makefilesclass(theasset=theasset)
 
 
-def runentirefile(theasset):
+def main(theasset):
 
-    for schooldict in theasset:
+    for schooldict in theasset[0:1]:
         schoolobject=makeSemesterFiles(schooldata=schooldict)
         
 
-        schoolobject.make_greentheme_excel_files()
+        schoolobject.automate_degreeplan_excel_files()
 
-runentirefile(theasset=theasset)
+main(theasset=theasset)
 # for a later document where I do this same thing but replicated. For this I will simply just modify the "make_majorcourses_csvs.py"
 class makeMajorFiles:
     def __init__(self):
