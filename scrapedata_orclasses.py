@@ -50,6 +50,7 @@ def getallcourses_splitbysemester(suggcourse_link):
     degreename=degreename.split(',')[-1].replace('\\','-').replace('/','-').strip()
     # I think I can do all the logic in this function turns out.
     # get only the even and odd trs for sure - this gets the semester headings too
+    semesterstable=course_soup.select_one('table.sc_courselist')
     unfiltered_trs=course_soup.find_all('tr',attrs={"class":["even","odd"]})
 
     trs=[]
@@ -110,7 +111,9 @@ def getallcourses_splitbysemester(suggcourse_link):
                         # defines coursecode here although tricky. Remove Unicode space.
                         # coursecode is essentially just a string here
                         coursecode=onecoursecode.text.replace('\xa0',' ')
-                    
+
+                if "PHL 329" in coursecode:
+                        print(f'coursecode {coursecode}\n\n\n')
 
 # -----------------------------------------------------------------------------------------------
                 # now that the unicode code is out, look for the & and replace them
@@ -194,6 +197,8 @@ def getallcourses_splitbysemester(suggcourse_link):
                     # print(f'orclass {tds[0].get_text()}')
                     coursename = tds[1]
                     coursecode = tds[0].get_text().replace('\xa0',' ')
+                    if "PHL 329" in coursecode:
+                        print(f'coursecode {coursecode}\n\n\n')
 
                 # print(f'Coursename {coursename.get_text()}')
                     if '(' in coursename.get_text().lower() and 'or' not in coursename.get_text().lower():
@@ -231,7 +236,7 @@ def getallcourses_splitbysemester(suggcourse_link):
 
                     secondtd=tds[1]
 
-
+                    manuallist=['PHL 329','UTS 360','UTS 355']
                     # extra assurance to check the class
                     if "hourscol" in secondtd.get("class",[]):
                         coursehours=secondtd.get_text()
@@ -245,7 +250,14 @@ def getallcourses_splitbysemester(suggcourse_link):
                     if coursename not in semesterdictionary[currentsemester]:
                         semesterdictionary[currentsemester][coursename]=[[coursecode, coursehours, status, coursetype]]
                     else:
-                        semesterdictionary[currentsemester][coursename].append([coursecode,coursehours,status, coursetype])
+                        if any(item in coursecode for item in manuallist):
+
+                            coursename+='removemelater'
+                            # print(f'Coursename we are appending{semesterdictionary[currentsemester][coursename]}]')
+                            semesterdictionary[currentsemester][coursename]=[[coursecode,coursehours,status, coursetype]]
+
+                        else:
+                            semesterdictionary[currentsemester][coursename].append([coursecode,coursehours,status, coursetype])
 
                         # get upper div by textin coursename for this one since no coursecode
                 elif "orclass" not in tds[0].get("class", []):
@@ -325,11 +337,12 @@ if __name__=="__main__":
     print('Calling getallcourses_splitbysemester')
    
     print('Economics:')
-    testlink='https://catalog.utexas.edu/undergraduate/natural-sciences/degrees-and-programs/bs-statistics-and-data-sciences/sugg-stat-data-sci-bssds/'
-    testdict=getallcourses_splitbysemester(suggcourse_link=test)
-    for currentsemester in testdict:
-        print(f'Sem:{currentsemester}:\n{testdict[currentsemester]}\n')
-        print(f'len of {currentsemester}: {len(testdict[currentsemester])}')
+    testlink='https://catalog.utexas.edu/undergraduate/geosciences/degrees-and-programs/bs-geological-sciences/sugg-geo-sci-bsgeosci/'
+    testdict=getallcourses_splitbysemester(suggcourse_link=testlink)
+    for currentsemester in testdict.values():
+        for key,value in currentsemester.items():
+            if isinstance(value, list):
+                print(value)
 
 
 
