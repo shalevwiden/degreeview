@@ -12,3 +12,7 @@ Why not use fun variable names lol.
 scrapesemesterdata.py is also useful, that one was tricky to build fr.
 
 You have to make the code account for all the many quirks of courses and the structure of the degreeplans at UT Austin.
+
+### datavisualizations.py and dataviz2.py made charts
+
+These files made the charts that are on the DegreeView UT stats page.

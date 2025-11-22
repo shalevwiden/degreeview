@@ -28,11 +28,13 @@ for school in range(len(schoolcolordict)):
 
 labels = []
 data = []
+# or change this for more colors
 colors=[]
 
 for i in biglist:
     labels.append(i[0])
     data.append(i[1])
+    # change this
     colors.append(i[2])
 
 def make_autopct(values):
