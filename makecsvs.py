@@ -2,8 +2,12 @@ import os
 import csv
 import sys
 import shutil
+import json
 
-from theassetcontainment import theasset
+with open('theassetcontainment.json') as assetjson:
+    theasset=json.load(assetjson)
+
+
 '''
 This one makes the SCHOOL SPECIFIC csvs (and future files), not degree specific like the other files
 '''

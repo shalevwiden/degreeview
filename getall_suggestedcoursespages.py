@@ -144,11 +144,6 @@ def make_suggcoursepage_and_degreename_dict(fullmajorlinks):
     
     return sugglink_and_degreename_dict
 
-
-
-
-
-
 def makelistofdicts(alldegreesandprogramsurls):
     # what it takes in is a list of all degrees and programs urls
     full=len(alldegreesandprogramsurls)

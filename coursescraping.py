@@ -262,9 +262,8 @@ if __name__=="__main__":
 
 
     # show the courses
-    print()
-    print('scrape_major_course_names')
-    print(scrape_major_course_names(course_soup=cssoup))
+
+
 
 
     def return_raw_major_course_names(course_soup):
@@ -306,6 +305,9 @@ if __name__=="__main__":
     cscodelist=findcodes(course_soup=cssoup)
     cs_rawnamelist=return_raw_major_course_names(course_soup=cssoup)
     print(f'\nMatchcodes and names is:\n{matchcodes_and_names(codelist=cscodelist,rawnamelist=cs_rawnamelist)}\n')
+    
+    econdict=find_major_coursedata(course_soup=econsoup)
+    print(f'Econ dict:\n{econdict}')
 
 
 
